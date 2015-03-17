@@ -1,0 +1,14 @@
+'atom-text-editor':
+  'ctrl-alt-,':         'lisp-paredit:barf-forwards'
+  'ctrl-alt-.':         'lisp-paredit:slurp-forwards'
+  'ctrl-alt-shift-,':   'lisp-paredit:slurp-backwards'
+  'ctrl-alt-shift-.':   'lisp-paredit:barf-backwards'
+  'ctrl-alt-k':         'lisp-paredit:kill-sexp-forwards'
+  'ctrl-alt-backspace': 'lisp-paredit:kill-sexp-backwards'
+
+  "ctrl-alt-right":     "lisp-paredit:forward-sexp"
+  "ctrl-alt-left":      "lisp-paredit:backward-sexp"
+  "ctrl-alt-up":        "lisp-paredit:up-sexp"
+  "ctrl-alt-down":      "lisp-paredit:down-sexp"
+  "ctrl-alt-space":     "lisp-paredit:expand-selection"
+  "ctrl-alt-f":         "lisp-paredit:format"
