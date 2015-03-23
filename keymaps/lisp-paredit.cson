@@ -1,14 +1,28 @@
-'atom-text-editor':
+'atom-text-editor[data-grammar~="clojure"],
+ atom-text-editor[data-grammar~="lisp"],
+ atom-text-editor[data-grammar~="newlisp"],
+ atom-text-editor[data-grammar~="scheme"]':
   'ctrl-alt-,':         'lisp-paredit:barf-forwards'
   'ctrl-alt-.':         'lisp-paredit:slurp-forwards'
   'ctrl-alt-shift-,':   'lisp-paredit:slurp-backwards'
   'ctrl-alt-shift-.':   'lisp-paredit:barf-backwards'
-  'ctrl-alt-k':         'lisp-paredit:kill-sexp-forwards'
-  'ctrl-alt-backspace': 'lisp-paredit:kill-sexp-backwards'
+
+  'cmd-delete':         'lisp-paredit:kill-sexp-forwards'
+
+  'cmd-backspace':      'lisp-paredit:kill-sexp-backwards'
+  'alt-backspace':      'lisp-paredit:kill-sexp-backwards'
+
+  "ctrl-alt-f":         "lisp-paredit:format"
 
   "ctrl-alt-right":     "lisp-paredit:forward-sexp"
   "ctrl-alt-left":      "lisp-paredit:backward-sexp"
   "ctrl-alt-up":        "lisp-paredit:up-sexp"
   "ctrl-alt-down":      "lisp-paredit:down-sexp"
   "ctrl-alt-space":     "lisp-paredit:expand-selection"
-  "ctrl-alt-f":         "lisp-paredit:format"
+
+  "backspace":          "lisp-paredit:delete-backwards"
+  'ctrl-h':             'lisp-paredit:delete-backwards'
+  "delete":             "lisp-paredit:delete-forwards"
+  "ctrl-d":             "lisp-paredit:delete-forwards"
+
+  "enter":              "lisp-paredit:newline"

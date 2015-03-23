@@ -1,4 +1,5 @@
 LispParedit = require '../lib/main'
+utils = require '../lib/utils'
 
 describe "LispParedit", ->
   [textEditorElement, activationPromise, editor] = []
@@ -13,30 +14,24 @@ describe "LispParedit", ->
         textEditorElement = atom.views.getView(editor)
 
   describe "when commands are triggered", ->
-    parseText = (text) ->
-      cursor = text.indexOf("\|")
-      if cursor >= 0
-        return [text.replace(/\|/, ""), cursor, -1, -1, null]
-
-      selectionStart = text.indexOf("<")
-      selectionEnd = text.indexOf(">")
-      if selectionStart >= 0 and selectionEnd >= 0
-        selectedText = text.match(/\<(.+)\>/)[1]
-        return [text.replace(/[\<\>]/g, ""), -1, selectionStart, selectionEnd - 1, selectedText]
-
-      return [text, -1, -1, -1, null]
-
-
     testCommand = (command, text, expected) ->
       it "should #{command}", ->
-        [text, cursor, selectionStart, selectionEnd, selectedText] = parseText(text)
-        [expectedText, expectedCursor, expectedStart, expectedEnd, expectedSelection] = parseText(expected)
+        [text, cursors, selections] = parseText(text)
+        [expectedText, expectedCursors, expectedSelections] = parseText(expected)
 
         editor.setText(text)
-        if cursor >= 0
-          editor.setCursorBufferPosition([0, cursor])
-        else if selectedText
-          editor.setSelectedBufferRange(([[0, selectionStart], [0, selectionEnd]]))
+        editor.setCursorBufferPosition(cursors[0]) if cursors.length > 0
+        if cursors.length > 1
+          for cursor in cursors[1..-1]
+            editor.addCursorAtBufferPosition(cursor)
+
+        if selections.length > 0
+          [selectionStart, selectionEnd, selectedText] = selections[0]
+          editor.setSelectedBufferRange([selectionStart, selectionEnd])
+
+        if selections.length > 1
+          for [selectionStart, selectionEnd, selectedText] in selections[1..-1]
+            editor.addSelectionForBufferRange([selectionStart, selectionEnd])
 
         atom.commands.dispatch textEditorElement, "lisp-paredit:#{command}"
 
@@ -44,23 +39,20 @@ describe "LispParedit", ->
           activationPromise
 
         actualText = editor.getText()
-        actualCursor = editor.getCursorBufferPosition().column
-        actualSelection = editor.getSelectedBufferRange()
+        expect(actualText).toEqual(expectedText)
 
-        if expectedCursor >= 0
-          expect(actualCursor).toEqual(expectedCursor)
-          expect(actualText).toEqual(expectedText)
-        else if expectedSelection
-          start = actualSelection.start.column
-          end = actualSelection.end.column
-          expect(start).toEqual(expectedStart)
-          expect(end).toEqual(expectedEnd)
-          expect(editor.getSelectedText()).toEqual(expectedSelection)
-          expect(actualText).toEqual(expectedText)
+        actualCursors = editor.getCursorBufferPositions()
+        assertCursors(actualCursors, expectedCursors)
+
+        actualSelections = editor.getSelections().filter (s) -> !s.isEmpty()
+        assertSelections(actualSelections, expectedSelections)
 
     testCommand "forward-sexp",         "|(a b) (c d)",         "(a b)| (c d)"
+    testCommand "forward-sexp",         "|(a\n b) (c d)",       "(a\n b)| (c d)"
     testCommand "backward-sexp",        "(a b)| (c d)",         "|(a b) (c d)"
+    testCommand "backward-sexp",        "(a\n b)| (c d)",       "|(a\n b) (c d)"
     testCommand "slurp-backwards",      "(a (|b) c)",           "((a |b) c)"
+    testCommand "slurp-backwards",      "(a (|b) c (|d))",      "((a |b) (c |d))"
     testCommand "slurp-forwards",       "(a (|b) c)",           "(a (|b c))"
     testCommand "barf-backwards",       "((a |b) c)",           "(a (|b) c)"
     testCommand "barf-forwards",        "((|a b) c)",           "((|a) b c)"
@@ -70,6 +62,16 @@ describe "LispParedit", ->
     testCommand "down-sexp",            "(|(a b) c)",           "((|a b) c)"
     testCommand "expand-selection",     "(a (b| c) d)",         "(a (<b> c) d)"
     testCommand "expand-selection",     "(a (<b> c) d)",        "(a (<b c>) d)"
+    testCommand "expand-selection",     "(a (<b>\n c) d)",      "(a (<b\n c>) d)"
+    testCommand "delete-backwards",     "(a b c|)",             "(a b |)"
+    testCommand "delete-backwards",     "(|)",                  "|"
+    testCommand "delete-backwards",     "(<{:a 1 :b 2}>)",      "(|)"
+    testCommand "delete-backwards",     "(<{:a 1\n :b 2}>)",    "(|)"
+    testCommand "delete-forwards",      "(<{:a 1 :b 2}>)",      "(|)"
+    testCommand "delete-forwards",      "(<{:a 1\n :b 2}>)",    "(|)"
+    testCommand "delete-forwards",      "(a b |c)",             "(a b |)"
+    testCommand "delete-forwards",      "(|)",                  "|"
+    testCommand "newline",              "(abc def|)",           "(abc def\n     )"
 
     it "should format text", ->
       editor.setText("""
@@ -96,3 +98,42 @@ describe "LispParedit", ->
          :plop poo})
 
       """)
+
+assertCursors = (actualCursors, expectedCursors) ->
+  if expectedCursors.length > 0
+    expect(actualCursors.length).toEqual(expectedCursors.length)
+
+  for i in [0..expectedCursors.length-1] by 1
+    expect(actualCursors[i]).toEqual(expectedCursors[i])
+
+assertSelections = (actualSelections, expectedSelections) ->
+  expect(actualSelections.length).toEqual(expectedSelections.length)
+
+  for i in [0..expectedSelections.length-1] by 1
+    start = actualSelections[i].getBufferRange().start
+    end = actualSelections[i].getBufferRange().end
+    text = actualSelections[i].getText()
+    [expectedStart, expectedEnd, expectedSelection] = expectedSelections[i]
+    expect(start).toEqual(expectedStart)
+    expect(end).toEqual(expectedEnd)
+    expect(text).toEqual(expectedSelection)
+
+parseText = (text) ->
+  cursors = []
+  while (cursor = text.indexOf("\|")) > -1
+    cursors.push utils.indexToPoint(cursor, text)
+    text = text.replace(/\|/, "")
+
+  return [text, cursors, []] if cursors.length > 0
+
+  selections = []
+  while (selectionStart = text.indexOf("<")) > -1
+    selectionEnd = text.indexOf(">") - 1
+    if selectionStart >= 0 and selectionEnd >= 0
+      text = text.replace(/</, "").replace(/>/, "")
+      selectedText = text.substring(selectionStart, selectionEnd)
+      selections.push [utils.indexToPoint(selectionStart, text), utils.indexToPoint(selectionEnd, text), selectedText]
+
+  return [text, [], selections] if selections.length > 0
+
+  [text, [], []]

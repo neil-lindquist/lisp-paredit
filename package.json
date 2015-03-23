@@ -1,8 +1,8 @@
 {
-  "name": "Lisp Paredit",
+  "name": "lisp-paredit",
   "main": "./lib/main",
   "version": "0.0.0",
-  "description": "A short description of your package",
+  "description": "Paredit for Atom",
   "activationCommands": {
     "atom-text-editor":[
       "lisp-paredit:slurp-backwards",
@@ -16,7 +16,10 @@
       "lisp-paredit:kill-sexp-forwards",
       "lisp-paredit:down-sexp",
       "lisp-paredit:barf-forwards",
-      "lisp-paredit:format"
+      "lisp-paredit:format",
+      "lisp-paredit:delete-backwards",
+      "lisp-paredit:delete-forwards",
+      "lisp-paredit:newline"
     ]
   },
   "repository": "https://github.com/jonspalding/lisp-paredit",
@@ -25,6 +28,6 @@
     "atom": ">=0.174.0 <2.0.0"
   },
   "dependencies": {
-    "paredit.js": "^0.2.7"
+    "paredit.js": "^0.2.8"
   }
 }

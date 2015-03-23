@@ -1,61 +1,108 @@
 {CompositeDisposable} = require 'atom'
 paredit = require 'paredit.js'
 {Range, Point} = require 'atom'
+utils = require "./utils"
 
 module.exports = LispParedit =
   subscriptions: null
 
   activate: (state) ->
-    @subscriptions = new CompositeDisposable
-    @subscriptions.add atom.commands.add "atom-text-editor", "lisp-paredit:slurp-backwards", => slurpBackwards()
-    @subscriptions.add atom.commands.add "atom-text-editor", "lisp-paredit:slurp-forwards", => slurpForwards()
-    @subscriptions.add atom.commands.add "atom-text-editor", "lisp-paredit:barf-backwards", => barfBackwards()
-    @subscriptions.add atom.commands.add "atom-text-editor", "lisp-paredit:barf-forwards", => barfForwards()
-    @subscriptions.add atom.commands.add "atom-text-editor", "lisp-paredit:kill-sexp-forwards", => killSexpForwards()
-    @subscriptions.add atom.commands.add "atom-text-editor", "lisp-paredit:kill-sexp-backwards", => killSexpBackwards()
-    @subscriptions.add atom.commands.add "atom-text-editor", "lisp-paredit:forward-sexp", => forwardSexp()
-    @subscriptions.add atom.commands.add "atom-text-editor", "lisp-paredit:backward-sexp", => backwardSexp()
-    @subscriptions.add atom.commands.add "atom-text-editor", "lisp-paredit:up-sexp", => upSexp()
-    @subscriptions.add atom.commands.add "atom-text-editor", "lisp-paredit:down-sexp", => downSexp()
-    @subscriptions.add atom.commands.add "atom-text-editor", "lisp-paredit:expand-selection", => expandSelection()
-    @subscriptions.add atom.commands.add "atom-text-editor", "lisp-paredit:format", => format()
+    addCommands [
+      ["slurp-backwards",      slurpBackwards]
+      ["slurp-forwards",       slurpForwards]
+      ["barf-backwards",       barfBackwards]
+      ["barf-forwards",        barfForwards]
+      ["kill-sexp-forwards",   killSexpForwards]
+      ["kill-sexp-backwards",  killSexpBackwards]
+      ["forward-sexp",         forwardSexp]
+      ["backward-sexp",        backwardSexp]
+      ["up-sexp",              upSexp]
+      ["down-sexp",            downSexp]
+      ["expand-selection",     expandSelection]
+      ["format",               format]
+      ["delete-backwards",     deleteBackwards]
+      ["delete-forwards",      deleteForwards]
+      ["newline",              newline]
+    ]
 
   deactivate: ->
-    @subscriptions.dispose()
+    @subscriptions.dispose() if @subscriptions
 
-parse = (editor) ->
-  paredit.parse(editor.getText())
+addCommands = (commands) ->
+  @subscriptions = new CompositeDisposable
+  for command in commands
+    @subscriptions.add atom.commands.add "atom-text-editor", "lisp-paredit:#{command[0]}", command[1]
+
+parse = (src) ->
+  paredit.parse(src)
 
 slurpBackwards = ->
-  burp(paredit.editor.slurpSexp, backward: true)
+  edit(paredit.editor.slurpSexp, backward: true)
 
 slurpForwards = ->
-  burp(paredit.editor.slurpSexp, backward: false)
+  edit(paredit.editor.slurpSexp, backward: false)
 
 barfBackwards = ->
-  burp(paredit.editor.barfSexp, backward: true)
+  edit(paredit.editor.barfSexp, backward: true)
 
 barfForwards = ->
-  burp(paredit.editor.barfSexp, backward: false)
+  edit(paredit.editor.barfSexp, backward: false)
 
 killSexpForwards = ->
-  burp(paredit.editor.killSexp, backward: false)
+  edit(paredit.editor.killSexp, backward: false)
 
 killSexpBackwards = ->
-  burp(paredit.editor.killSexp, backward: true)
+  edit(paredit.editor.killSexp, backward: true)
 
-# barf/slurp = burp
-burp = (fn, args) ->
+edit = (fn, args) ->
   editor = atom.workspace.getActiveTextEditor()
-  ast = parse(editor)
-  cursor = editor.getCursorBufferPosition()
-  index = convertPointToIndex(cursor, editor)
-  result = fn(ast, editor.getText(), index, args)
-  applyChanges(result, editor)
+  cursors = editor.getCursorBufferPositions()
+  indexes = []
+
+  for cursor in cursors
+    indexes.push convertPointToIndex(cursor, editor)
+
+  selections = editor.getSelections().filter (s) -> !s.isEmpty()
+  newIndexes = []
+
+  editor.transact ->
+    if selections.length > 0
+      for selection in selections
+        src = editor.getText()
+        ast = parse(src)
+        startIndex = selection.getBufferRange().start
+        endIndex = selection.getBufferRange().end
+        index = convertPointToIndex(startIndex, editor)
+        args.endIdx = convertPointToIndex(endIndex, editor)
+        args.freeEdits = true
+        result = fn(ast, src, index, args)
+
+        newIndexes.push result.newIndex if result?.newIndex
+
+        if result?.changes
+          applyChanges
+            changes: result.changes,
+            editor
+    else
+      for index in indexes
+        src = editor.getText()
+        ast = parse(src)
+
+        result = fn(ast, src, index, args)
+        newIndexes.push result.newIndex if result?.newIndex
+
+        if result?.changes
+          applyChanges
+            changes: result.changes,
+            editor
+
+    applyChanges
+      newIndexes: newIndexes,
+      editor
 
 navigate = (fn) ->
   editor = atom.workspace.getActiveTextEditor()
-  ast = parse(editor)
+  ast = parse(editor.getText())
   cursor = editor.getCursorBufferPosition()
   index = convertPointToIndex(cursor, editor)
   result = fn(ast, index)
@@ -73,7 +120,7 @@ downSexp = ->
 
 expandSelection = ->
   editor = atom.workspace.getActiveTextEditor()
-  ast = parse(editor)
+  ast = parse(editor.getText())
   range = editor.getSelectedBufferRange()
   startIndex = convertPointToIndex(range.start, editor)
   endIndex = convertPointToIndex(range.end, editor)
@@ -86,7 +133,7 @@ expandSelection = ->
 
 format = ->
   editor = atom.workspace.getActiveTextEditor()
-  ast = parse(editor)
+  ast = parse(editor.getText())
   src = editor.getText()
   range = editor.getSelectedBufferRange()
   if range.isEmpty()
@@ -105,14 +152,23 @@ format = ->
 
 applyChanges = (result, editor) ->
   if result
-    editor.transact ->
-      if result.changes
-        for change in result.changes
-          pareditChangeFns[change[0]](editor, change.slice(1))
+    if result.changes
+      for change in result.changes
+        pareditChangeFns[change[0]](editor, change.slice(1))
 
-          if result.newIndex
-            point = convertIndexToPoint(result.newIndex, editor)
-            editor.setCursorBufferPosition(point)
+    if result.newIndex or result.newIndexes
+      indexes = result.newIndexes or []
+      indexes.push result.newIndex if result.newIndex
+
+      first = indexes.slice(0,1)
+      rest = indexes.slice(1)
+
+      point = convertIndexToPoint(first, editor)
+      editor.setCursorBufferPosition(point)
+
+      for newIndex in rest
+        point = convertIndexToPoint(newIndex, editor)
+        editor.addCursorAtBufferPosition(point)
 
 pareditChangeFns =
   insert: (editor, [index, text]) ->
@@ -131,13 +187,38 @@ convertPointToIndex = (point, editor) ->
   editor.getTextInBufferRange(range).length
 
 convertIndexToPoint = (index, editor) ->
-  length = 0
-  row = 0
-  while (length < index)
-    rowLength = editor.lineTextForBufferRow(row).length + 1
-    if length + rowLength > index
-      break
-    length += rowLength
-    row += 1
-  column = index - length
-  new Point(row, column)
+  p = utils.indexToPoint(index, editor.getText())
+  new Point(p.row, p.column)
+
+deleteBackwards = () ->
+  edit(paredit.editor.delete, {backward: true})
+
+deleteForwards = () ->
+  edit(paredit.editor.delete, {backward: false})
+
+newline = () ->
+  editor = atom.workspace.getActiveTextEditor()
+  cursors = editor.getCursorBufferPositions()
+  newSrc = editor.getText()
+  indices = []
+
+  for cursor in cursors
+    index = convertPointToIndex(cursor, editor)
+    indices.push index
+    newSrc = newSrc.slice(0, index) + "\n" + newSrc.slice(index)
+
+  ast = paredit.parse(newSrc, {})
+
+  changes = []
+  newIndexes = []
+
+  for index in indices
+    res = paredit.editor.indentRange(ast, newSrc, index+1, index+1)
+    changes.push ['insert', index, "\n"]
+    changes = changes.concat res.changes
+    newIndexes.push res.newIndex
+
+  applyChanges
+    changes: changes
+    newIndexes: newIndexes,
+    editor
