@@ -24,14 +24,14 @@ ctrl-alt-left      | backward-sexp
 ctrl-alt-up        | up-sexp
 ctrl-alt-down      | down-sexp
 ctrl-alt-space     | expand-selection
-ctrl-alt-f         | format
+ctrl-tab           | indent
 
 ## Todo
  - Split
  - Splice
+ - Wrap around
  - Rewrite
  - Delete
- - Wrap around
  - Close and newline
  - Toggle on/off
  - Enforce structure - override default keys

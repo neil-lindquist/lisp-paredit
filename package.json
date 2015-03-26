@@ -16,7 +16,7 @@
       "lisp-paredit:kill-sexp-forwards",
       "lisp-paredit:down-sexp",
       "lisp-paredit:barf-forwards",
-      "lisp-paredit:format",
+      "lisp-paredit:indent",
       "lisp-paredit:delete-backwards",
       "lisp-paredit:delete-forwards",
       "lisp-paredit:newline"

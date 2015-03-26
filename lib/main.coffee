@@ -19,7 +19,7 @@ module.exports = LispParedit =
       ["up-sexp",              upSexp]
       ["down-sexp",            downSexp]
       ["expand-selection",     expandSelection]
-      ["format",               format]
+      ["indent",               indent]
       ["delete-backwards",     deleteBackwards]
       ["delete-forwards",      deleteForwards]
       ["newline",              newline]
@@ -87,18 +87,22 @@ edit = (fn, args) ->
       for index in indexes
         src = editor.getText()
         ast = parse(src)
+        result = null
+        try
+          result = fn(ast, src, index, args)
+        catch err
+          console.error "[Lisp Paredit] Error calling paredit.js", err
 
-        result = fn(ast, src, index, args)
         newIndexes.push result.newIndex if result?.newIndex
-
         if result?.changes
           applyChanges
             changes: result.changes,
             editor
 
-    applyChanges
-      newIndexes: newIndexes,
-      editor
+    if newIndexes.length > 0
+      applyChanges
+        newIndexes: newIndexes,
+        editor
 
 navigate = (fn) ->
   editor = atom.workspace.getActiveTextEditor()
@@ -131,7 +135,7 @@ expandSelection = ->
     newSelection = new Range(convertIndexToPoint(start, editor), convertIndexToPoint(end, editor))
     editor.setSelectedBufferRange(newSelection)
 
-format = ->
+indent = ->
   editor = atom.workspace.getActiveTextEditor()
   ast = parse(editor.getText())
   src = editor.getText()
@@ -148,7 +152,8 @@ format = ->
 
   if start and end
     result = paredit.editor.indentRange(ast, src, start, end)
-    applyChanges(result, editor)
+    editor.transact ->
+      applyChanges({changes:result.changes}, editor)
 
 applyChanges = (result, editor) ->
   if result
@@ -218,7 +223,8 @@ newline = () ->
     changes = changes.concat res.changes
     newIndexes.push res.newIndex
 
-  applyChanges
-    changes: changes
-    newIndexes: newIndexes,
-    editor
+  editor.transact ->
+    applyChanges
+      changes: changes
+      newIndexes: newIndexes,
+      editor

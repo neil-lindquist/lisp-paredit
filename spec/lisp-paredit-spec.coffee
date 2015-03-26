@@ -51,29 +51,45 @@ describe "LispParedit", ->
     testCommand "forward-sexp",         "|(a\n b) (c d)",       "(a\n b)| (c d)"
     testCommand "backward-sexp",        "(a b)| (c d)",         "|(a b) (c d)"
     testCommand "backward-sexp",        "(a\n b)| (c d)",       "|(a\n b) (c d)"
+
     testCommand "slurp-backwards",      "(a (|b) c)",           "((a |b) c)"
     testCommand "slurp-backwards",      "(a (|b) c (|d))",      "((a |b) (c |d))"
+    testCommand "slurp-backwards",      "|(a (b) c (d))",       "|(a (b) c (d))"
+    testCommand "slurp-backwards",      "(a b) |(c d)",         "(a b) |(c d)"
+
     testCommand "slurp-forwards",       "(a (|b) c)",           "(a (|b c))"
+    testCommand "slurp-forwards",       "|(a (b) c)",           "|(a (b) c)"
+
     testCommand "barf-backwards",       "((a |b) c)",           "(a (|b) c)"
+    testCommand "barf-backwards",       "|((a b) c)",           "((a b) c)"
+    testCommand "barf-backwards",       "(a b) |(c d)",         "(a b) |(c d)"
+
     testCommand "barf-forwards",        "((|a b) c)",           "((|a) b c)"
+    testCommand "barf-forwards",        "|((a b) c)",           "|((a b) c)"
+
     testCommand "kill-sexp-forwards",   "((a| b) c)",           "((a|) c)"
     testCommand "kill-sexp-backwards",  "((a |b) c)",           "((|b) c)"
+
     testCommand "up-sexp",              "((a| b) c)",           "(|(a b) c)"
     testCommand "down-sexp",            "(|(a b) c)",           "((|a b) c)"
+
     testCommand "expand-selection",     "(a (b| c) d)",         "(a (<b> c) d)"
     testCommand "expand-selection",     "(a (<b> c) d)",        "(a (<b c>) d)"
     testCommand "expand-selection",     "(a (<b>\n c) d)",      "(a (<b\n c>) d)"
+
     testCommand "delete-backwards",     "(a b c|)",             "(a b |)"
     testCommand "delete-backwards",     "(|)",                  "|"
     testCommand "delete-backwards",     "(<{:a 1 :b 2}>)",      "(|)"
     testCommand "delete-backwards",     "(<{:a 1\n :b 2}>)",    "(|)"
+
     testCommand "delete-forwards",      "(<{:a 1 :b 2}>)",      "(|)"
     testCommand "delete-forwards",      "(<{:a 1\n :b 2}>)",    "(|)"
     testCommand "delete-forwards",      "(a b |c)",             "(a b |)"
     testCommand "delete-forwards",      "(|)",                  "|"
+
     testCommand "newline",              "(abc def|)",           "(abc def\n     )"
 
-    it "should format text", ->
+    it "should indent text", ->
       editor.setText("""
 
       (defn foo
@@ -85,7 +101,7 @@ describe "LispParedit", ->
 
       editor.setCursorBufferPosition([1, 0])
 
-      atom.commands.dispatch textEditorElement, "lisp-paredit:format"
+      atom.commands.dispatch textEditorElement, "lisp-paredit:indent"
 
       waitsForPromise ->
         activationPromise
@@ -98,6 +114,8 @@ describe "LispParedit", ->
          :plop poo})
 
       """)
+
+      expect(editor.getCursorBufferPosition()).toEqual([1, 0])
 
 assertCursors = (actualCursors, expectedCursors) ->
   if expectedCursors.length > 0
