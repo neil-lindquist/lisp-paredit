@@ -56,11 +56,8 @@ killSexpBackwards = ->
 
 edit = (fn, args) ->
   editor = atom.workspace.getActiveTextEditor()
-  cursors = editor.getCursorBufferPositions()
+  cursors = editor.getCursors()
   indexes = []
-
-  for cursor in cursors
-    indexes.push convertPointToIndex(cursor, editor)
 
   selections = editor.getSelections().filter (s) -> !s.isEmpty()
   newIndexes = []
@@ -84,7 +81,9 @@ edit = (fn, args) ->
             changes: result.changes,
             editor
     else
-      for index in indexes
+      for cursor in cursors
+        index = convertPointToIndex(cursor.getBufferPosition(), editor)
+
         src = editor.getText()
         ast = parse(src)
         result = null

@@ -78,6 +78,7 @@ describe "LispParedit", ->
     testCommand "expand-selection",     "(a (<b>\n c) d)",      "(a (<b\n c>) d)"
 
     testCommand "delete-backwards",     "(a b c|)",             "(a b |)"
+    testCommand "delete-backwards",     "(a| b| c|)",           "(| | |)"
     testCommand "delete-backwards",     "(|)",                  "|"
     testCommand "delete-backwards",     "(<{:a 1 :b 2}>)",      "(|)"
     testCommand "delete-backwards",     "(<{:a 1\n :b 2}>)",    "(|)"
@@ -85,6 +86,7 @@ describe "LispParedit", ->
     testCommand "delete-forwards",      "(<{:a 1 :b 2}>)",      "(|)"
     testCommand "delete-forwards",      "(<{:a 1\n :b 2}>)",    "(|)"
     testCommand "delete-forwards",      "(a b |c)",             "(a b |)"
+    testCommand "delete-forwards",      "(|a |b |c)",           "(| | |)"
     testCommand "delete-forwards",      "(|)",                  "|"
 
     testCommand "newline",              "(abc def|)",           "(abc def\n     )"
