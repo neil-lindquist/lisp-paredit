@@ -56,7 +56,7 @@ killSexpBackwards = ->
 
 edit = (fn, args) ->
   editor = atom.workspace.getActiveTextEditor()
-  cursors = editor.getCursors()
+  cursors = editor.getCursorsOrderedByBufferPosition()
   indexes = []
 
   selections = editor.getSelections().filter (s) -> !s.isEmpty()
@@ -202,12 +202,12 @@ deleteForwards = () ->
 
 newline = () ->
   editor = atom.workspace.getActiveTextEditor()
-  cursors = editor.getCursorBufferPositions()
+  cursors = editor.getCursorsOrderedByBufferPosition()
   newSrc = editor.getText()
   indices = []
 
   for cursor in cursors
-    index = convertPointToIndex(cursor, editor)
+    index = convertPointToIndex(cursor.getBufferPosition(), editor)
     indices.push index
     newSrc = newSrc.slice(0, index) + "\n" + newSrc.slice(index)
 
