@@ -121,6 +121,18 @@ describe "LispParedit", ->
 
       expect(editor.getCursorBufferPosition()).toEqual([1, 0])
 
+    it "should not allow close brackets to be inserted when strict mode enabled", ->
+      atom.config.set('lisp-paredit.strict', true)
+      editor.setText("")
+      editor.insertText(")")
+      expect(editor.getText()).toEqual("")
+
+    it "should allow close brackets to be inserted when strict mode disabled", ->
+      atom.config.set('lisp-paredit.strict', false)
+      editor.setText("")
+      editor.insertText(")")
+      expect(editor.getText()).toEqual(")")
+
 assertCursors = (actualCursors, expectedCursors) ->
   if expectedCursors.length > 0
     expect(actualCursors.length).toEqual(expectedCursors.length)

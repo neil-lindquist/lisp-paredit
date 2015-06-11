@@ -6,11 +6,18 @@ Views = require "./views"
 
 module.exports = LispParedit =
   subscriptions: null
+  strictSubscriptions: null
   views: null
+
+  config:
+    someInt:
+      type: 'boolean'
+      default: true
 
   activate: (state) ->
     @views = new Views
     @subscriptions = new CompositeDisposable
+    @strictSubscriptions = new CompositeDisposable
     addCommands [
       ["slurp-backwards",      slurpBackwards]
       ["slurp-forwards",       slurpForwards]
@@ -31,29 +38,44 @@ module.exports = LispParedit =
 
     @subscriptions.add atom.workspace.observeTextEditors (editor) =>
                          if isSupportedGrammar(editor.getGrammar())
-                           observeEditor(editor, @subscriptions, @views)
+                           observeEditor(editor, @subscriptions, @strictSubscriptions, @views)
                          else
                            editor.onDidChangeGrammar (grammar) =>
                              if isSupportedGrammar(grammar)
-                               observeEditor(editor, @subscriptions, @views)
+                               observeEditor(editor, @subscriptions, @strictSubscriptions, @views)
 
   deactivate: ->
     @subscriptions.dispose() if @subscriptions
+    @strictSubscriptions.dispose() if @strictSubscriptions
 
 grammars = ["Clojure", "Lisp", "Scheme", "Newlisp"]
+strictChars = [")", "}", "]"]
 
 isSupportedGrammar = (grammar) ->
   grammars.some (g) -> g == grammar.name
 
-observeEditor = (editor, subs, views) ->
+observeEditor = (editor, subs, strictSubs, views) ->
   checkSyntax(editor, views)
   subs.add editor.onDidStopChanging ->
     checkSyntax(editor, views)
 
+  if atom.config.get 'lisp-paredit.strict'
+    strictMode(strictSubs, editor)
+
+  atom.config.observe 'lisp-paredit.strict', (isStrict) =>
+    if isStrict
+      strictMode(strictSubs, editor)
+    else
+      strictSubs.dispose()
+
+strictMode = (subs, editor) ->
+  subs.add editor.onWillInsertText (event) ->
+    closeBrace = strictChars.some (ch) -> ch == event.text
+    event.cancel() if closeBrace
+
 checkSyntax = (editor, views) ->
   path = editor.getPath()
   ast = paredit.parse(editor.getText())
-  console.log ast.errors
   if ast.errors
     views.showErrors(editor, ast.errors)
   else
