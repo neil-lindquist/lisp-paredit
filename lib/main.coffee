@@ -10,6 +10,9 @@ module.exports = LispParedit =
   views: null
 
   config:
+    enabled:
+      type: 'boolean'
+      default: true
     strict:
       type: 'boolean'
       default: true
@@ -34,16 +37,26 @@ module.exports = LispParedit =
       ["delete-backwards",     deleteBackwards]
       ["delete-forwards",      deleteForwards]
       ["newline",              newline]
+      ["toggle",               toggle, 'atom-workspace']
       ["toggle-strict",        toggleStrict, 'atom-workspace']
     ], @subscriptions
 
-    @subscriptions.add atom.workspace.observeTextEditors (editor) =>
-                         if isSupportedGrammar(editor.getGrammar())
-                           observeEditor(editor, @subscriptions, @strictSubscriptions, @views)
-                         else
-                           editor.onDidChangeGrammar (grammar) =>
-                             if isSupportedGrammar(grammar)
-                               observeEditor(editor, @subscriptions, @strictSubscriptions, @views)
+    if atom.config.get 'lisp-paredit.enabled'
+      addSubscriptions(@subscriptions, @strictSubscriptions, @views)
+
+    atom.config.observe 'lisp-paredit.enabled', (isEnabled) =>
+      unless isEnabled
+        @subscriptions.dispose()
+      else
+        addSubscriptions(@subscriptions, @strictSubscriptions, @views)
+
+    atom.config.observe 'lisp-paredit.strict', (isStrict) =>
+      unless isStrict
+        @strictSubscriptions.dispose()
+      else
+        for editor in atom.workspace.getTextEditors()
+          if isSupportedGrammar(editor.getGrammar())
+            strictMode(@strictSubscriptions, editor)
 
   deactivate: ->
     @subscriptions.dispose() if @subscriptions
@@ -51,6 +64,15 @@ module.exports = LispParedit =
 
 grammars = ["Clojure", "Lisp", "Scheme", "Newlisp"]
 strictChars = [")", "}", "]"]
+
+addSubscriptions = (subs, strictSubs, views) ->
+  subs.add atom.workspace.observeTextEditors (editor) =>
+             if isSupportedGrammar(editor.getGrammar())
+               observeEditor(editor, subs, strictSubs, views)
+             else
+               editor.onDidChangeGrammar (grammar) =>
+                 if isSupportedGrammar(grammar)
+                   observeEditor(editor, subs, strictSubs, views)
 
 isSupportedGrammar = (grammar) ->
   grammars.some (g) -> g == grammar.name
@@ -62,12 +84,6 @@ observeEditor = (editor, subs, strictSubs, views) ->
 
   if atom.config.get 'lisp-paredit.strict'
     strictMode(strictSubs, editor)
-
-  atom.config.observe 'lisp-paredit.strict', (isStrict) =>
-    if isStrict
-      strictMode(strictSubs, editor)
-    else
-      strictSubs.dispose()
 
 strictMode = (subs, editor) ->
   subs.add editor.onWillInsertText (event) ->
@@ -286,8 +302,8 @@ newline = () ->
       newIndexes: newIndexes,
       editor
 
+toggle = () ->
+  atom.config.set 'lisp-paredit.enabled', !atom.config.get('lisp-paredit.enabled')
+
 toggleStrict = () ->
-  if atom.config.get 'lisp-paredit.strict'
-    atom.config.set 'lisp-paredit.strict', false
-  else
-    atom.config.set 'lisp-paredit.strict', true
+  atom.config.set 'lisp-paredit.strict', !atom.config.get('lisp-paredit.strict')
