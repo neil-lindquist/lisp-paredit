@@ -3,25 +3,6 @@
   "main": "./lib/main",
   "version": "0.0.0",
   "description": "Paredit for Atom",
-  "activationCommands": {
-    "atom-text-editor":[
-      "lisp-paredit:slurp-backwards",
-      "lisp-paredit:forward-sexp",
-      "lisp-paredit:up-sexp",
-      "lisp-paredit:kill-sexp-backwards",
-      "lisp-paredit:barf-backwards",
-      "lisp-paredit:slurp-forwards",
-      "lisp-paredit:backward-sexp",
-      "lisp-paredit:expand-selection",
-      "lisp-paredit:kill-sexp-forwards",
-      "lisp-paredit:down-sexp",
-      "lisp-paredit:barf-forwards",
-      "lisp-paredit:indent",
-      "lisp-paredit:delete-backwards",
-      "lisp-paredit:delete-forwards",
-      "lisp-paredit:newline"
-    ]
-  },
   "repository": "https://github.com/jonspalding/lisp-paredit",
   "license": "MIT",
   "engines": {

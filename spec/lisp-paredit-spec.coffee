@@ -2,16 +2,24 @@ LispParedit = require '../lib/main'
 utils = require '../lib/utils'
 
 describe "LispParedit", ->
-  [textEditorElement, activationPromise, editor] = []
+  [textEditorElement, editor] = []
 
   beforeEach ->
     workspaceElement = atom.views.getView(atom.workspace)
-    activationPromise = atom.packages.activatePackage('lisp-paredit')
 
     waitsForPromise ->
-      atom.workspace.open('test.clj').then (e) =>
+      atom.packages.activatePackage('language-clojure')
+
+    waitsForPromise ->
+      atom.workspace.open('test.clj').then (e) ->
         editor = e
         textEditorElement = atom.views.getView(editor)
+
+    waitsForPromise ->
+      atom.packages.activatePackage('lisp-paredit')
+
+  it 'should be active', ->
+    expect(atom.packages.isPackageActive('lisp-paredit')).toBe true
 
   describe "when commands are triggered", ->
     testCommand = (command, text, expected) ->
@@ -34,9 +42,6 @@ describe "LispParedit", ->
             editor.addSelectionForBufferRange([selectionStart, selectionEnd])
 
         atom.commands.dispatch textEditorElement, "lisp-paredit:#{command}"
-
-        waitsForPromise ->
-          activationPromise
 
         actualText = editor.getText()
         expect(actualText).toEqual(expectedText)
@@ -104,9 +109,6 @@ describe "LispParedit", ->
       editor.setCursorBufferPosition([1, 0])
 
       atom.commands.dispatch textEditorElement, "lisp-paredit:indent"
-
-      waitsForPromise ->
-        activationPromise
 
       expect(editor.getText()).toEqual("""
 

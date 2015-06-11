@@ -1,12 +1,16 @@
-{CompositeDisposable} = require 'atom'
+{CompositeDisposable, Range, Point} = require 'atom'
 paredit = require 'paredit.js'
-{Range, Point} = require 'atom'
 utils = require "./utils"
+Views = require "./views"
+
 
 module.exports = LispParedit =
   subscriptions: null
+  views: null
 
   activate: (state) ->
+    @views = new Views
+    @subscriptions = new CompositeDisposable
     addCommands [
       ["slurp-backwards",      slurpBackwards]
       ["slurp-forwards",       slurpForwards]
@@ -23,15 +27,41 @@ module.exports = LispParedit =
       ["delete-backwards",     deleteBackwards]
       ["delete-forwards",      deleteForwards]
       ["newline",              newline]
-    ]
+    ], @subscriptions
+
+    @subscriptions.add atom.workspace.observeTextEditors (editor) =>
+                         if isSupportedGrammar(editor.getGrammar())
+                           observeEditor(editor, @subscriptions, @views)
+                         else
+                           editor.onDidChangeGrammar (grammar) =>
+                             if isSupportedGrammar(grammar)
+                               observeEditor(editor, @subscriptions, @views)
 
   deactivate: ->
     @subscriptions.dispose() if @subscriptions
 
-addCommands = (commands) ->
-  @subscriptions = new CompositeDisposable
+grammars = ["Clojure", "Lisp", "Scheme", "Newlisp"]
+
+isSupportedGrammar = (grammar) ->
+  grammars.some (g) -> g == grammar.name
+
+observeEditor = (editor, subs, views) ->
+  checkSyntax(editor, views)
+  subs.add editor.onDidStopChanging ->
+    checkSyntax(editor, views)
+
+checkSyntax = (editor, views) ->
+  path = editor.getPath()
+  ast = paredit.parse(editor.getText())
+  console.log ast.errors
+  if ast.errors
+    views.showErrors(editor, ast.errors)
+  else
+    views.clearErrors(editor)
+
+addCommands = (commands, subs) ->
   for command in commands
-    @subscriptions.add atom.commands.add "atom-text-editor", "lisp-paredit:#{command[0]}", command[1]
+    subs.add atom.commands.add "atom-text-editor", "lisp-paredit:#{command[0]}", command[1]
 
 parse = (src) ->
   paredit.parse(src)
@@ -136,9 +166,13 @@ expandSelection = ->
 
 indent = ->
   editor = atom.workspace.getActiveTextEditor()
+  range = editor.getSelectedBufferRange()
+  indentRange(range, editor)
+
+indentRange = (range, editor) ->
   ast = parse(editor.getText())
   src = editor.getText()
-  range = editor.getSelectedBufferRange()
+
   if range.isEmpty()
     expanded = paredit.navigator.sexpRangeExpansion(ast,
       convertPointToIndex(range.start, editor),
