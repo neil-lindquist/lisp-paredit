@@ -5,6 +5,12 @@ module.exports =
 class Views
   syntaxMarkers: {}
 
+  constructor: (@toggleCallback, @toggleStrictCallback) ->
+
+  setStatusBar: (statusBar) ->
+    StatusBarView = require "./status-bar-view"
+    @statusBarView = new StatusBarView(statusBar, @toggleCallback, @toggleStrictCallback)
+
   showErrors: (editor, errors) ->
     @clearErrors(editor)
     src = editor.getText()
@@ -13,9 +19,15 @@ class Views
       marker = editor.markBufferRange(range, invalidate: 'touch')
       editor.decorateMarker(marker, {type: 'highlight', class: 'lisp-syntax-error'})
       @syntaxMarkers[editor].push marker
-    # @gutterView.addError # crap docs
 
   clearErrors: (editor) ->
     if @syntaxMarkers[editor]
       m.destroy() for m in @syntaxMarkers[editor]
     @syntaxMarkers[editor] = []
+
+  enabled: (isEnabled) ->
+    if @statusBarView
+      if isEnabled then @statusBarView.enable() else @statusBarView.disable()
+  strictModeEnabled: (isEnabled) ->
+    if @statusBarView
+      if isEnabled then @statusBarView.enableStrict() else @statusBarView.disableStrict()

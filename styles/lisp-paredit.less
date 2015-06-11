@@ -1,0 +1,18 @@
+@import "ui-variables";
+
+.lisp-paredit-status {
+  color: @text-color-subtle;
+}
+.lisp-paredit-status > .enabled-status {
+  font-size: 1.5em;
+}
+.lisp-paredit-status > .strict-status {
+  vertical-align: top;
+}
+
+.lisp-paredit-status.enabled > .enabled-status {
+  color: @text-color-success;
+}
+.lisp-paredit-status.strict.enabled > .strict-status {
+  color: @text-color-success;
+}

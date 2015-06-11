@@ -6,6 +6,7 @@ Views = require "./views"
 
 module.exports = LispParedit =
   subscriptions: null
+  persistentSubscriptions: null
   strictSubscriptions: null
   views: null
 
@@ -18,39 +19,22 @@ module.exports = LispParedit =
       default: true
 
   activate: (state) ->
-    @views = new Views
+    @views = new Views(toggle, toggleStrict)
     @subscriptions = new CompositeDisposable
+    @persistentSubscriptions = new CompositeDisposable
     @strictSubscriptions = new CompositeDisposable
-    addCommands [
-      ["slurp-backwards",      slurpBackwards]
-      ["slurp-forwards",       slurpForwards]
-      ["barf-backwards",       barfBackwards]
-      ["barf-forwards",        barfForwards]
-      ["kill-sexp-forwards",   killSexpForwards]
-      ["kill-sexp-backwards",  killSexpBackwards]
-      ["forward-sexp",         forwardSexp]
-      ["backward-sexp",        backwardSexp]
-      ["up-sexp",              upSexp]
-      ["down-sexp",            downSexp]
-      ["expand-selection",     expandSelection]
-      ["indent",               indent]
-      ["delete-backwards",     deleteBackwards]
-      ["delete-forwards",      deleteForwards]
-      ["newline",              newline]
-      ["toggle",               toggle, 'atom-workspace']
-      ["toggle-strict",        toggleStrict, 'atom-workspace']
-    ], @subscriptions
 
-    if atom.config.get 'lisp-paredit.enabled'
-      addSubscriptions(@subscriptions, @strictSubscriptions, @views)
+    addCommands [["toggle", toggle, 'atom-workspace']], @persistentSubscriptions
 
     atom.config.observe 'lisp-paredit.enabled', (isEnabled) =>
+      @views.enabled(isEnabled)
       unless isEnabled
         @subscriptions.dispose()
       else
         addSubscriptions(@subscriptions, @strictSubscriptions, @views)
 
     atom.config.observe 'lisp-paredit.strict', (isStrict) =>
+      @views.strictModeEnabled(isStrict)
       unless isStrict
         @strictSubscriptions.dispose()
       else
@@ -59,13 +43,39 @@ module.exports = LispParedit =
             strictMode(@strictSubscriptions, editor)
 
   deactivate: ->
+    @persistentSubscriptions.dispose() if @persistentSubscriptions
     @subscriptions.dispose() if @subscriptions
     @strictSubscriptions.dispose() if @strictSubscriptions
+
+  consumeStatusBar: (statusBar) ->
+    @views.setStatusBar(statusBar)
+    @views.enabled(atom.config.get('lisp-paredit.enabled'))
+    @views.strictModeEnabled(atom.config.get('lisp-paredit.strict'))
+
 
 grammars = ["Clojure", "Lisp", "Scheme", "Newlisp"]
 strictChars = [")", "}", "]"]
 
 addSubscriptions = (subs, strictSubs, views) ->
+  addCommands [
+    ["slurp-backwards",      slurpBackwards]
+    ["slurp-forwards",       slurpForwards]
+    ["barf-backwards",       barfBackwards]
+    ["barf-forwards",        barfForwards]
+    ["kill-sexp-forwards",   killSexpForwards]
+    ["kill-sexp-backwards",  killSexpBackwards]
+    ["forward-sexp",         forwardSexp]
+    ["backward-sexp",        backwardSexp]
+    ["up-sexp",              upSexp]
+    ["down-sexp",            downSexp]
+    ["expand-selection",     expandSelection]
+    ["indent",               indent]
+    ["delete-backwards",     deleteBackwards]
+    ["delete-forwards",      deleteForwards]
+    ["newline",              newline]
+    ["toggle-strict",        toggleStrict, 'atom-workspace']
+  ], subs
+
   subs.add atom.workspace.observeTextEditors (editor) =>
              if isSupportedGrammar(editor.getGrammar())
                observeEditor(editor, subs, strictSubs, views)
