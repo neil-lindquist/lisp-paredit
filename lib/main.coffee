@@ -10,7 +10,7 @@ module.exports = LispParedit =
   views: null
 
   config:
-    someInt:
+    strict:
       type: 'boolean'
       default: true
 
@@ -34,6 +34,7 @@ module.exports = LispParedit =
       ["delete-backwards",     deleteBackwards]
       ["delete-forwards",      deleteForwards]
       ["newline",              newline]
+      ["toggle-strict",        toggleStrict, 'atom-workspace']
     ], @subscriptions
 
     @subscriptions.add atom.workspace.observeTextEditors (editor) =>
@@ -83,7 +84,8 @@ checkSyntax = (editor, views) ->
 
 addCommands = (commands, subs) ->
   for command in commands
-    subs.add atom.commands.add "atom-text-editor", "lisp-paredit:#{command[0]}", command[1]
+    scope = if command.length == 3 then command[2] else 'atom-text-editor'
+    subs.add atom.commands.add scope, "lisp-paredit:#{command[0]}", command[1]
 
 parse = (src) ->
   paredit.parse(src)
@@ -283,3 +285,9 @@ newline = () ->
       changes: changes
       newIndexes: newIndexes,
       editor
+
+toggleStrict = () ->
+  if atom.config.get 'lisp-paredit.strict'
+    atom.config.set 'lisp-paredit.strict', false
+  else
+    atom.config.set 'lisp-paredit.strict', true

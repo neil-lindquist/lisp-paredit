@@ -1,0 +1,11 @@
+'menu': [
+  {
+    'label': 'Packages'
+    'submenu': [
+      'label': 'Lisp Paredit'
+      'submenu': [
+        { 'label': 'Toggle Strict Mode', 'command': 'lisp-paredit:toggle-strict' }        
+      ]
+    ]
+  }
+]
