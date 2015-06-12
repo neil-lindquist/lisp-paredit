@@ -20,9 +20,13 @@
   'ctrl-down':          'lisp-paredit:down-sexp'
   'ctrl-w':             'lisp-paredit:expand-selection'
 
+  'enter':              'lisp-paredit:newline'
+
+'atom-text-editor[data-grammar~="clojure"].lisp-paredit-strict,
+ atom-text-editor[data-grammar~="lisp"].lisp-paredit-strict,
+ atom-text-editor[data-grammar~="newlisp"].lisp-paredit-strict,
+ atom-text-editor[data-grammar~="scheme"].lisp-paredit-strict':
   'backspace':          'lisp-paredit:delete-backwards'
   'ctrl-h':             'lisp-paredit:delete-backwards'
   'delete':             'lisp-paredit:delete-forwards'
   'ctrl-d':             'lisp-paredit:delete-forwards'
-
-  'enter':              'lisp-paredit:newline'
