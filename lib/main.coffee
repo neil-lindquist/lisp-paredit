@@ -14,9 +14,13 @@ module.exports = LispParedit =
     enabled:
       type: 'boolean'
       default: true
+      description: 'When enabled the paredit commands are bound to editors that have Lisp grammars'
+      order: 1
     strict:
       type: 'boolean'
       default: true
+      description: 'Strict mode disallows the removal of single brackets, instead encouraging the user to use the paredit commands to modify s-expressions'
+      order: 2
 
   activate: (state) ->
     @views = new Views(toggle, toggleStrict)
