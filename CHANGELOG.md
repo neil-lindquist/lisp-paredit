@@ -1,3 +1,6 @@
+## 0.2.1
+* Allow deletion of structural chars when strict mode disabled
+
 ## 0.2.0
 * Status bar indicator of enabled/strict status
 * Toggle paredit or strict mode by clicking on status bar indicator
