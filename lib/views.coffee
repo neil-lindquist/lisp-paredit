@@ -3,9 +3,8 @@ utils = require "./utils"
 
 module.exports =
 class Views
-  syntaxMarkers: {}
-
   constructor: (@toggleCallback, @toggleStrictCallback) ->
+    @syntaxMarkers = {}
 
   setStatusBar: (statusBar) ->
     StatusBarView = require "./status-bar-view"
@@ -28,6 +27,11 @@ class Views
   enabled: (isEnabled) ->
     if @statusBarView
       if isEnabled then @statusBarView.enable() else @statusBarView.disable()
+
   strictModeEnabled: (isEnabled) ->
     if @statusBarView
       if isEnabled then @statusBarView.enableStrict() else @statusBarView.disableStrict()
+
+  detach: ->
+    @statusBarView.detach()
+    marker.destroy() for key, marker in @syntaxMarkers

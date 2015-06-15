@@ -50,6 +50,7 @@ module.exports = LispParedit =
     @persistentSubscriptions.dispose() if @persistentSubscriptions
     @subscriptions.dispose() if @subscriptions
     @strictSubscriptions.dispose() if @strictSubscriptions
+    @views.detach()
 
   consumeStatusBar: (statusBar) ->
     @views.setStatusBar(statusBar)
