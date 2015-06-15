@@ -134,6 +134,20 @@ describe "LispParedit", ->
         editor.insertText(")")
         expect(editor.getText()).toEqual(")")
 
+      it "should ensure close brackets are inserted when strict mode enabled", ->
+        atom.config.set('lisp-paredit.strict', true)
+        editor.setText("foo")
+        editor.setCursorBufferPosition([0, 0])
+        editor.insertText("(")
+        expect(editor.getText()).toEqual("()foo")
+
+      it "should not add close brackets when strict mode disabled", ->
+        atom.config.set('lisp-paredit.strict', false)
+        editor.setText("foo")
+        editor.setCursorBufferPosition([0, 0])
+        editor.insertText("(")
+        expect(editor.getText()).toEqual("(foo")
+
       # TODO: work out how to send keypresses
       # it "should not allow close brackets to be deleted when strict mode enabled", ->
       #   atom.config.set('lisp-paredit.strict', true)

@@ -58,7 +58,8 @@ module.exports = LispParedit =
     @views.strictModeEnabled(atom.config.get('lisp-paredit.strict'))
 
 grammars = ["Clojure", "Lisp", "Scheme", "Newlisp"]
-strictChars = [")", "}", "]"]
+closingBraces = [")", "}", "]"]
+openingBraces = ["(", "{", "["]
 
 enableStrictMode = (strictSubs, views) ->
   views.strictModeEnabled(true)
@@ -76,7 +77,11 @@ enableEditorStrictMode = (strictSubs, editor) ->
   addClass(view, "lisp-paredit-strict")
 
   strictSubs.add editor.onWillInsertText (event) ->
-    closeBrace = strictChars.some (ch) -> ch == event.text
+    for brace, i in openingBraces
+      if event.text == brace
+        event.cancel()
+        editor.insertText "#{brace}#{closingBraces[i]}"
+    closeBrace = closingBraces.some (ch) -> ch == event.text
     event.cancel() if closeBrace
 
 disableStrictMode = (strictSubs, views) ->
