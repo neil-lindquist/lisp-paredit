@@ -81,6 +81,7 @@ enableEditorStrictMode = (strictSubs, editor) ->
       if event.text == brace
         event.cancel()
         editor.insertText "#{brace}#{closingBraces[i]}"
+        editor.moveLeft()
     closeBrace = closingBraces.some (ch) -> ch == event.text
     event.cancel() if closeBrace
 
