@@ -1,3 +1,9 @@
+## 0.2.3
+* Detach view when package deactivated
+
+## 0.2.2
+* Add descriptions to config options
+
 ## 0.2.1
 * Allow deletion of structural chars when strict mode disabled
 
