@@ -82,6 +82,8 @@ describe "LispParedit", ->
     testCommand "splice-backwards",     "(a |b c)",             "|b c"
     testCommand "splice-forwards",      "(a |b c)",             "a |"
 
+    testCommand "split",                "(a |b c)",             "(a )| (b c)"
+
     testCommand "expand-selection",     "(a (b| c) d)",         "(a (<b> c) d)"
     testCommand "expand-selection",     "(a (<b> c) d)",        "(a (<b c>) d)"
     testCommand "expand-selection",     "(a (<b>\n c) d)",      "(a (<b\n c>) d)"

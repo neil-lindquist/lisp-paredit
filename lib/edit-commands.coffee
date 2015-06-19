@@ -30,6 +30,9 @@ module.exports =
   spliceForwards: ->
     edit(paredit.editor.spliceSexpKill, backward: false)
 
+  split: ->
+    edit(paredit.editor.splitSexp)
+
   indent: ->
     editor = atom.workspace.getActiveTextEditor()
     range = editor.getSelectedBufferRange()

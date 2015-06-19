@@ -75,6 +75,7 @@ enableParedit = (subs, views) ->
     ["splice",               edit.splice]
     ["splice-backwards",     edit.spliceBackwards]
     ["splice-forwards",      edit.spliceForwards]
+    ["split",                edit.split]
     ["forward-sexp",         nav.forwardSexp]
     ["backward-sexp",        nav.backwardSexp]
     ["up-sexp",              nav.upSexp]
