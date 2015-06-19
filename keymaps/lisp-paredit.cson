@@ -30,3 +30,4 @@
   'ctrl-h':             'lisp-paredit:delete-backwards'
   'delete':             'lisp-paredit:delete-forwards'
   'ctrl-d':             'lisp-paredit:delete-forwards'
+  'cmd-v':              'lisp-paredit:paste'

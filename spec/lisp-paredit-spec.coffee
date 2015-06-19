@@ -156,6 +156,24 @@ describe "LispParedit", ->
         editor.insertText("()")
         expect(editor.getText()).toEqual("()")
 
+      it "should disallow invalid paste input", ->
+        atom.config.set('lisp-paredit.strict', true)
+        editor.setText("")
+        editor.setCursorBufferPosition([0, 0])
+
+        atom.clipboard.write("(")
+        atom.commands.dispatch textEditorElement, "lisp-paredit:paste"
+        expect(editor.getText()).toEqual("")
+
+      it "should allow valid paste input", ->
+        atom.config.set('lisp-paredit.strict', true)
+        editor.setText("")
+        editor.setCursorBufferPosition([0, 0])
+
+        atom.clipboard.write("(foo bar)")
+        atom.commands.dispatch textEditorElement, "lisp-paredit:paste"
+        expect(editor.getText()).toEqual("(foo bar)")
+
 
       # TODO: work out how to send keypresses
       # it "should not allow close brackets to be deleted when strict mode enabled", ->

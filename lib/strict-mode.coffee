@@ -11,7 +11,8 @@ module.exports =
     utils.addCommands [
       ["delete-backwards",     edit.deleteBackwards]
       ["delete-forwards",      edit.deleteForwards]
-    ], strictSubs
+      ["paste",                edit.paste]
+    ], strictSubs, views
 
     strictSubs.add atom.workspace.observeTextEditors (editor) =>
                      if utils.isSupportedGrammar(editor.getGrammar())

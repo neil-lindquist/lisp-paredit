@@ -30,7 +30,9 @@ module.exports =
     p = @indexToPoint(index, editor.getText())
     new Point(p.row, p.column)
 
-  addCommands: (commands, subs) ->
-    for command in commands
-      scope = if command.length == 3 then command[2] else 'atom-text-editor'
-      subs.add atom.commands.add scope, "lisp-paredit:#{command[0]}", command[1]
+  addCommands: (commands, subs, views) ->
+    addCommand(command, subs, views) for command in commands
+
+addCommand = (command, subs, views) ->
+  scope = if command.length == 3 then command[2] else 'atom-text-editor'
+  subs.add atom.commands.add scope, "lisp-paredit:#{command[0]}", -> command[1](views)

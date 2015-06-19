@@ -28,7 +28,7 @@ module.exports = LispParedit =
     @views = new Views(toggle, toggleStrict)
     @persistentSubscriptions = new CompositeDisposable
 
-    utils.addCommands [["toggle", toggle, 'atom-workspace']], @persistentSubscriptions
+    utils.addCommands [["toggle", toggle, 'atom-workspace']], @persistentSubscriptions, @views
 
     atom.config.observe 'lisp-paredit.enabled', (shouldEnable) =>
       if shouldEnable
@@ -80,7 +80,7 @@ enableParedit = (subs, views) ->
     ["indent",               edit.indent]
     ["newline",              edit.newline]
     ["toggle-strict",        toggleStrict, 'atom-workspace']
-  ], subs
+  ], subs, views
 
   subs.add atom.workspace.observeTextEditors (editor) =>
              if utils.isSupportedGrammar(editor.getGrammar())

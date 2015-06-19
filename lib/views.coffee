@@ -33,7 +33,7 @@ class Views
       if isEnabled then @statusBarView.enableStrict() else @statusBarView.disableStrict()
 
   detach: ->
-    @statusBarView.detach()
+    @statusBarView.detach() if @statusBarView
     marker.destroy() for key, marker in @syntaxMarkers
 
   invalidInput: ->

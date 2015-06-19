@@ -32,6 +32,15 @@ module.exports =
   deleteForwards: ->
     edit(paredit.editor.delete, {backward: false})
 
+  paste: (views) ->
+    text = atom.clipboard.read()
+    ast = paredit.parse(text)
+    editor = atom.workspace.getActiveTextEditor()
+    if ast.errors.length > 0
+      views.invalidInput()
+    else
+      editor.pasteText()
+
   newline: ->
     editor = atom.workspace.getActiveTextEditor()
     cursors = editor.getCursorsOrderedByBufferPosition()
