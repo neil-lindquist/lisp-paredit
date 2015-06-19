@@ -51,7 +51,10 @@ module.exports =
     if ast.errors.length > 0
       views.invalidInput()
     else
-      editor.pasteText()
+      editor.transact ->
+        editor.pasteText()
+        range = editor.getSelectedBufferRange()
+        indentRange(range, editor)
 
   newline: ->
     editor = atom.workspace.getActiveTextEditor()
