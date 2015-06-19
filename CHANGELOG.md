@@ -1,3 +1,13 @@
+## 0.3.0
+Disallow paste if invalid syntax in strict mode
+
+## 0.2.5
+Flash strict status message if input is being disallowed
+
+## 0.2.4
+Move cursor to inside brackets when we add a closing brace
+Add closing brace when single opening brace is inserted
+
 ## 0.2.3
 * Detach view when package deactivated
 
