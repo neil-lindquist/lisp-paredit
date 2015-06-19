@@ -22,11 +22,16 @@ class StatusBarView extends View
     @toggleStrictCallback()
 
   enable: ->
-    this.addClass("enabled")
+    @addClass("enabled")
   disable: ->
-    this.removeClass("enabled")
+    @removeClass("enabled")
   enableStrict: ->
-    this.addClass("strict")
+    @addClass("strict")
   disableStrict: ->
-    this.removeClass("strict")
-  
+    @removeClass("strict")
+
+  invalidInput: ->
+    @addClass("error")
+    setTimeout =>
+      @removeClass("error")
+    , 100

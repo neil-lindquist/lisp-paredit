@@ -70,20 +70,33 @@ enableStrictMode = (strictSubs, views) ->
 
   strictSubs.add atom.workspace.observeTextEditors (editor) =>
                    if isSupportedGrammar(editor.getGrammar())
-                     enableEditorStrictMode(strictSubs, editor)
+                     enableEditorStrictMode(strictSubs, editor, views)
 
-enableEditorStrictMode = (strictSubs, editor) ->
+enableEditorStrictMode = (strictSubs, editor, views) ->
   view = atom.views.getView(editor)
   addClass(view, "lisp-paredit-strict")
 
   strictSubs.add editor.onWillInsertText (event) ->
-    for brace, i in openingBraces
-      if event.text == brace
+    if event.text.length == 1
+      for brace, i in openingBraces
+        if event.text == brace
+          event.cancel()
+          editor.insertText "#{brace}#{closingBraces[i]}"
+          editor.moveLeft()
+      closeBrace = closingBraces.some (ch) -> ch == event.text
+      if closeBrace
         event.cancel()
-        editor.insertText "#{brace}#{closingBraces[i]}"
-        editor.moveLeft()
-    closeBrace = closingBraces.some (ch) -> ch == event.text
-    event.cancel() if closeBrace
+        views.invalidInput()
+    else
+      stack = []
+      for c in event.text
+        if openingBraces.indexOf(c) > -1
+          stack.push c
+        else if i = closingBraces.indexOf(c) > -1
+          stack.pop c if stack[-1] == openingBraces[i]
+      if stack.length > 0
+        event.cancel()
+        views.invalidInput()
 
 disableStrictMode = (strictSubs, views) ->
   views.strictModeEnabled(false)

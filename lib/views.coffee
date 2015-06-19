@@ -35,3 +35,6 @@ class Views
   detach: ->
     @statusBarView.detach()
     marker.destroy() for key, marker in @syntaxMarkers
+
+  invalidInput: ->
+    @statusBarView.invalidInput() if @statusBarView
