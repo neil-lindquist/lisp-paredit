@@ -22,6 +22,10 @@
 
   'enter':              'lisp-paredit:newline'
 
+  'ctrl-alt-up':        'lisp-paredit:splice-backwards'
+  'ctrl-alt-down':      'lisp-paredit:splice-forwards'
+  'ctrl-alt-s':         'lisp-paredit:splice'
+
 'atom-text-editor[data-grammar~="clojure"].lisp-paredit-strict,
  atom-text-editor[data-grammar~="lisp"].lisp-paredit-strict,
  atom-text-editor[data-grammar~="newlisp"].lisp-paredit-strict,

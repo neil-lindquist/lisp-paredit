@@ -21,6 +21,15 @@ module.exports =
   killSexpBackwards: ->
     edit(paredit.editor.killSexp, backward: true)
 
+  splice: ->
+    edit(paredit.editor.spliceSexp)
+
+  spliceBackwards: ->
+    edit(paredit.editor.spliceSexpKill, backward: true)
+
+  spliceForwards: ->
+    edit(paredit.editor.spliceSexpKill, backward: false)
+
   indent: ->
     editor = atom.workspace.getActiveTextEditor()
     range = editor.getSelectedBufferRange()
@@ -128,7 +137,7 @@ edit = (fn, args) ->
   selections = editor.getSelections().filter (s) -> !s.isEmpty()
   newIndexes = []
 
-  editor.transact ->
+  editor.transact =>
     if selections.length > 0
       for selection in selections
         src = editor.getText()
