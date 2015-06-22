@@ -1,5 +1,9 @@
 ## 0.3.0
 Disallow paste if invalid syntax in strict mode
+Indent on paste
+Add split command
+Add tests for splice commands
+Add splice command
 
 ## 0.2.5
 Flash strict status message if input is being disallowed

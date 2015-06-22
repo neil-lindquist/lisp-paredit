@@ -39,6 +39,11 @@ ctrl-left          | backward-sexp
 ctrl-up            | up-sexp
 ctrl-down          | down-sexp
 ctrl-w             | expand-selection
+ctrl-alt-up        | splice-backwards
+ctrl-alt-down      | splice-forwards
+ctrl-alt-s         | splice
+ctrl-alt-/         | split
+
 
 ## Overidden Commands
 These override the default behaviour with paredit special functions.
