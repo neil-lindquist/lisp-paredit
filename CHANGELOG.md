@@ -1,3 +1,6 @@
+## 0.3.1
+Set a more sensible tile weight to align status bar view more to the right
+
 ## 0.3.0
 Disallow paste if invalid syntax in strict mode
 Indent on paste
