@@ -11,7 +11,7 @@ class StatusBarView extends View
     @attach()
 
   attach: ->
-    @tile = @statusBar.addRightTile(item: this, priority: 200)
+    @tile = @statusBar.addRightTile(item: this, priority: 10)
 
   detach: ->
     @tile.destroy() if @tile
