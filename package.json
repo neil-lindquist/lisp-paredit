@@ -1,7 +1,7 @@
 {
   "name": "lisp-paredit",
   "main": "./lib/main",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Paredit for Atom",
   "repository": "https://github.com/jonspalding/lisp-paredit",
   "license": "MIT",
