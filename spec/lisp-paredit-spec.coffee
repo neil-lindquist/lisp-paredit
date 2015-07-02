@@ -84,6 +84,8 @@ describe "LispParedit", ->
 
     testCommand "split",                "(a |b c)",             "(a )| (b c)"
 
+    testCommand "wrap-around",          "(a |b c)",             "(a (|b) c)"
+
     testCommand "expand-selection",     "(a (b| c) d)",         "(a (<b> c) d)"
     testCommand "expand-selection",     "(a (<b> c) d)",        "(a (<b c>) d)"
     testCommand "expand-selection",     "(a (<b>\n c) d)",      "(a (<b\n c>) d)"
