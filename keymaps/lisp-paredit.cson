@@ -26,6 +26,7 @@
   'ctrl-alt-down':      'lisp-paredit:splice-forwards'
   'ctrl-alt-s':         'lisp-paredit:splice'
   'ctrl-alt-/':         'lisp-paredit:split'
+  'ctrl-alt-(':         'lisp-paredit:wrap-around'
 
 'atom-text-editor[data-grammar~="clojure"].lisp-paredit-strict,
  atom-text-editor[data-grammar~="lisp"].lisp-paredit-strict,

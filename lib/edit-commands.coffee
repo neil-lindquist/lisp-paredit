@@ -3,6 +3,9 @@ utils = require "./utils"
 paredit = require "paredit.js"
 
 module.exports =
+  wrapAround: ->
+    edit((ast, src, index, args) -> paredit.editor.wrapAround ast, src, index, '(', ')', args)
+
   slurpBackwards: ->
     edit(paredit.editor.slurpSexp, backward: true)
 
