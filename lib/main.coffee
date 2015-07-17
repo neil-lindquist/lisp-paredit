@@ -83,6 +83,9 @@ enableParedit = (subs, views) ->
     ["expand-selection",     nav.expandSelection]
     ["indent",               edit.indent]
     ["newline",              edit.newline]
+    ["wrap-around-parens",   edit.wrapAroundParens]
+    ["wrap-around-square",   edit.wrapAroundSquare]
+    ["wrap-around-curly",    edit.wrapAroundCurly]
     ["toggle-strict",        toggleStrict, 'atom-workspace']
   ], subs, views
 

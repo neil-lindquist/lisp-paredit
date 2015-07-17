@@ -43,6 +43,9 @@ ctrl-alt-up        | splice-backwards
 ctrl-alt-down      | splice-forwards
 ctrl-alt-s         | splice
 ctrl-alt-/         | split
+ctrl-alt-(         | wrap-around-parens
+ctrl-alt-[         | wrap-around-square
+ctrl-alt-{         | wrap-around-curly
 
 
 ## Overidden Commands

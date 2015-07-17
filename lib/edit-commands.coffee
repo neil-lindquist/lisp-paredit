@@ -44,6 +44,15 @@ module.exports =
   deleteForwards: ->
     edit(paredit.editor.delete, {backward: false})
 
+  wrapAroundParens: ->
+    edit(wrapAroundFn('(', ')'))
+
+  wrapAroundSquare: ->
+    edit(wrapAroundFn('[', ']'))
+
+  wrapAroundCurly: ->
+    edit(wrapAroundFn('{', '}'))
+
   paste: (views) ->
     text = atom.clipboard.read()
     ast = paredit.parse(text)
@@ -134,6 +143,10 @@ pareditChangeFns =
     end = utils.convertIndexToPoint(index + length, editor)
     range = new Range(start, end)
     editor.setTextInBufferRange(range, "")
+
+wrapAroundFn = (start, end) ->
+  (ast, src, index, args) ->
+    paredit.editor.wrapAround ast, src, index, start, end, args
 
 edit = (fn, args) ->
   editor = atom.workspace.getActiveTextEditor()
