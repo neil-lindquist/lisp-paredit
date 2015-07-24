@@ -27,6 +27,7 @@
   'ctrl-alt-s':         'lisp-paredit:splice'
   'ctrl-alt-/':         'lisp-paredit:split'
   'ctrl-alt-(':         'lisp-paredit:wrap-around-parens'
+  'ctrl-alt-9':         'lisp-paredit:wrap-around-parens'
   'ctrl-alt-[':         'lisp-paredit:wrap-around-square'
   'ctrl-alt-{':         'lisp-paredit:wrap-around-curly'
 
