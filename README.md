@@ -44,6 +44,7 @@ ctrl-alt-down      | splice-forwards
 ctrl-alt-s         | splice
 ctrl-alt-/         | split
 ctrl-alt-(         | wrap-around-parens
+ctrl-alt-9         | wrap-around-parens
 ctrl-alt-[         | wrap-around-square
 ctrl-alt-{         | wrap-around-curly
 

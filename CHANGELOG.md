@@ -1,3 +1,7 @@
+## 0.4.0
+Add wrap-around commands
+Better indentation (using patched version of paredit.js)
+
 ## 0.3.1
 Set a more sensible tile weight to align status bar view more to the right
 
