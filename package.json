@@ -9,7 +9,7 @@
     "atom": ">=0.208.0"
   },
   "dependencies": {
-    "paredit.js": "jonspalding/paredit.js",
+    "paredit.js": "git://github.com/jonspalding/paredit.js",
     "atom-space-pen-views": "^2.0.5"
   },
   "consumedServices": {
