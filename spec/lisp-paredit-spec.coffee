@@ -102,9 +102,9 @@ describe "LispParedit", ->
 
     testCommand "newline",              "(abc def|)",           "(abc def\n     )"
 
-    testCommand "wrap-around-parens",   "|a b",                   "(|a) b"
-    testCommand "wrap-around-square",   "|a b",                   "[|a] b"
-    testCommand "wrap-around-curly",    "|a b",                   "{|a} b"
+    testCommand "wrap-around-parens",   "|a b",                 "(|a) b"
+    testCommand "wrap-around-square",   "|a b",                 "[|a] b"
+    testCommand "wrap-around-curly",    "|a b",                 "{|a} b"
 
     it "should indent text", ->
       editor.setText("""

@@ -148,7 +148,7 @@ wrapAroundFn = (start, end) ->
   (ast, src, index, args) ->
     paredit.editor.wrapAround ast, src, index, start, end, args
 
-edit = (fn, args) ->
+edit = (fn, args = {}) ->
   editor = atom.workspace.getActiveTextEditor()
   cursors = editor.getCursorsOrderedByBufferPosition()
   indexes = []
