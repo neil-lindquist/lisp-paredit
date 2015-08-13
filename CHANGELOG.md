@@ -1,3 +1,6 @@
+## 0.4.1
+Bugfix wrap around with selection
+
 ## 0.4.0
 Add wrap-around commands
 Better indentation (using patched version of paredit.js)
