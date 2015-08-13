@@ -1,3 +1,6 @@
+## 0.4.2
+Indent `doseq` properly
+
 ## 0.4.1
 Bugfix wrap around with selection
 
