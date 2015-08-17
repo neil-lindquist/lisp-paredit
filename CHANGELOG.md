@@ -1,3 +1,6 @@
+## 0.4.3
+Revert to npm dependency on paredit.js to fix install problem
+
 ## 0.4.2
 Indent `doseq` properly
 
