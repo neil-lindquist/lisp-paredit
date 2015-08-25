@@ -25,6 +25,8 @@ module.exports = LispParedit =
       order: 2
 
   activate: (state) ->
+    configureParedit()
+
     @views = new Views(toggle, toggleStrict)
     @persistentSubscriptions = new CompositeDisposable
 
@@ -115,3 +117,17 @@ toggle = () ->
 
 toggleStrict = () ->
   atom.config.set 'lisp-paredit.strict', !atom.config.get('lisp-paredit.strict')
+
+newSpecialForms = [
+  "&", "monitor-exit", /^case/, "try", /^reify/, "finally", /^(.*-)?loop/,
+  /^let/, /^import/, "new", /^deftype/, /^let/, "fn", "recur", /^set.*!$/,
+  ".", "var", "quote", "catch", "throw", "monitor-enter",
+  'ns', 'in-ns', /^([^\/]+\/)?def/,/^if/,/^when/,/^unless/, "while", "for",
+  /(^|\/)with/, "testing", "while", "cond", "condp", "apply",
+  "binding", "locking", "proxy", "reify", /^extend/, "facts",
+  "do", "doseq", "dorun", "doall", "dosync"];
+
+configureParedit = ->
+  paredit.specialForms.pop() for [0..paredit.specialForms.length]
+
+  paredit.specialForms.push form for form in newSpecialForms
