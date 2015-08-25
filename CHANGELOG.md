@@ -1,3 +1,6 @@
+## 0.4.4
+Update paredit.js to 0.2.11
+
 ## 0.4.3
 Revert to npm dependency on paredit.js to fix install problem
 
