@@ -63,7 +63,7 @@ module.exports = LispParedit =
 
 disableParedit = (subs, views) ->
   views.enabled(false)
-  subs.dispose()
+  subs.dispose() if subs
 
 enableParedit = (subs, views) ->
   views.enabled(true)

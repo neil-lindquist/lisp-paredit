@@ -20,7 +20,7 @@ module.exports =
 
   disableStrictMode: (strictSubs, views) ->
     views.strictModeEnabled(false)
-    strictSubs.dispose()
+    strictSubs.dispose() if strictSubs
     for editor in atom.workspace.getTextEditors()
       view = atom.views.getView(editor)
       utils.removeClass(view, "lisp-paredit-strict")
