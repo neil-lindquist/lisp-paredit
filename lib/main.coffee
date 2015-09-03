@@ -125,7 +125,7 @@ newSpecialForms = [
   'ns', 'in-ns', /^([^\/]+\/)?def/,/^if/,/^when/,/^unless/, "while", "for",
   /(^|\/)with/, "testing", "while", "cond", "condp", "apply",
   "binding", "locking", "proxy", "reify", /^extend/, "facts",
-  "do", "doseq", "dorun", "doall", "dosync"];
+  "do", "doseq", "dorun", "doall", "dosync", "start", "stop"];
 
 configureParedit = ->
   paredit.specialForms.pop() for [0..paredit.specialForms.length]
