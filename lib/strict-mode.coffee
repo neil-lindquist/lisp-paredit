@@ -1,4 +1,4 @@
-
+paredit = require 'paredit.js'
 utils = require "./utils"
 edit = require "./edit-commands"
 
@@ -30,23 +30,7 @@ enableEditorStrictMode = (strictSubs, editor, views) ->
   utils.addClass(view, "lisp-paredit-strict")
 
   strictSubs.add editor.onWillInsertText (event) ->
-    if event.text.length == 1
-      for brace, i in openingBraces
-        if event.text == brace
-          event.cancel()
-          editor.insertText "#{brace}#{closingBraces[i]}"
-          editor.moveLeft()
-      closeBrace = closingBraces.some (ch) -> ch == event.text
-      if closeBrace
-        event.cancel()
-        views.invalidInput()
-    else
-      stack = []
-      for c in event.text
-        if openingBraces.indexOf(c) > -1
-          stack.push c
-        else if i = closingBraces.indexOf(c) > -1
-          stack.pop c if stack[-1] == openingBraces[i]
-      if stack.length > 0
-        event.cancel()
-        views.invalidInput()
+    ast = paredit.parse(event.text)
+    if ast.errors.length > 0
+      event.cancel()
+      views.invalidInput()

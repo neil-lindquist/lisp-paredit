@@ -23,6 +23,21 @@ module.exports = LispParedit =
       default: true
       description: 'Strict mode disallows the removal of single brackets, instead encouraging the user to use the paredit commands to modify s-expressions'
       order: 2
+    indentationForms:
+      type: 'array'
+      default: ["&", "monitor-exit", "/^case/", "try", "/^reify/", "finally", "/^(.*-)?loop/",
+        "/^let/", "/^import/", "new", "/^deftype/", "/^let/", "fn", "recur", "/^set.*!$/",
+        ".", "var", "quote", "catch", "throw", "monitor-enter",
+        'ns', 'in-ns', "/^([^\/]+\/)?def/","/^if/","/^when/","/^unless/", "while", "for",
+        "/(^|\/)with/", "testing", "while", "cond", "condp", "apply",
+        "binding", "locking", "proxy", "reify", "/^extend/", "facts",
+        "do", "doseq", "dorun", "doall", "dosync", "start", "stop"]
+      description: 'A list of forms (strings or regexes) that affect the indentation level'
+      order: 3
+      items:
+        type: 'string'
+
+
 
   activate: (state) ->
     configureParedit()
@@ -49,6 +64,9 @@ module.exports = LispParedit =
         strict.enableStrictMode(@strictSubscriptions, @views)
       else
         strict.disableStrictMode(@strictSubscriptions, @views)
+
+    atom.config.onDidChange 'lisp-paredit.indentationForms', (event) =>
+      configureParedit()
 
   deactivate: ->
     @persistentSubscriptions.dispose() if @persistentSubscriptions
@@ -102,7 +120,7 @@ enableParedit = (subs, views) ->
 observeEditor = (editor, subs, views) ->
   checkSyntax(editor, views)
   subs.add editor.onDidStopChanging ->
-    checkSyntax(editor, views)
+    checkSyntax(editor, views)  
 
 checkSyntax = (editor, views) ->
   path = editor.getPath()
@@ -118,16 +136,13 @@ toggle = () ->
 toggleStrict = () ->
   atom.config.set 'lisp-paredit.strict', !atom.config.get('lisp-paredit.strict')
 
-newSpecialForms = [
-  "&", "monitor-exit", /^case/, "try", /^reify/, "finally", /^(.*-)?loop/,
-  /^let/, /^import/, "new", /^deftype/, /^let/, "fn", "recur", /^set.*!$/,
-  ".", "var", "quote", "catch", "throw", "monitor-enter",
-  'ns', 'in-ns', /^([^\/]+\/)?def/,/^if/,/^when/,/^unless/, "while", "for",
-  /(^|\/)with/, "testing", "while", "cond", "condp", "apply",
-  "binding", "locking", "proxy", "reify", /^extend/, "facts",
-  "do", "doseq", "dorun", "doall", "dosync", "start", "stop"];
-
 configureParedit = ->
   paredit.specialForms.pop() for [0..paredit.specialForms.length]
 
-  paredit.specialForms.push form for form in newSpecialForms
+  specialForms = atom.config.get("lisp-paredit.indentationForms") or []
+
+  for form in specialForms
+    match = form.match /^\/(.+)\/$/
+    if match
+      form = new RegExp(match[1])
+    paredit.specialForms.push form
