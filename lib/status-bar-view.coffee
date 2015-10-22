@@ -34,4 +34,4 @@ class StatusBarView extends View
     @addClass("error")
     setTimeout =>
       @removeClass("error")
-    , 100
+    , 300

@@ -2,6 +2,7 @@
 
 .lisp-paredit-status {
   color: @text-color-subtle;
+  border-radius: 5px;
 }
 .lisp-paredit-status > .enabled-status {
   font-size: 1.5em;
@@ -16,6 +17,6 @@
 .lisp-paredit-status.strict.enabled > .strict-status {
   color: @text-color-success;
 }
-.lisp-paredit-status.error > .strict-status {
-  color: @text-color-error !important;
+.lisp-paredit-status.error {
+  background-color: @background-color-error !important;
 }
