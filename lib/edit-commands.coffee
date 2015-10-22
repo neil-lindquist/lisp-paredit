@@ -148,6 +148,18 @@ wrapAroundFn = (start, end) ->
   (ast, src, index, args) ->
     paredit.editor.wrapAround ast, src, index, start, end, args
 
+applyIndent = (changes, editor) ->
+  rowsChanged = {} # because JavaScript
+  for change in changes
+    rowsChanged[utils.convertIndexToPoint(change[1], editor).row] = true
+
+  rows = Object.keys rowsChanged
+
+  if rows.length > 1
+    start = [Math.min.apply(null, rows), 0]
+    end = [Math.max.apply(null, rows), 0]
+    indentRange(new Range(start, end), editor)
+
 edit = (fn, args = {}) ->
   editor = atom.workspace.getActiveTextEditor()
   cursors = editor.getCursorsOrderedByBufferPosition()
@@ -174,6 +186,7 @@ edit = (fn, args = {}) ->
           applyChanges
             changes: result.changes,
             editor
+          applyIndent result.changes, editor
     else
       for cursor in cursors
         index = utils.convertPointToIndex(cursor.getBufferPosition(), editor)
@@ -191,6 +204,7 @@ edit = (fn, args = {}) ->
           applyChanges
             changes: result.changes,
             editor
+          applyIndent result.changes, editor
 
     if newIndexes.length > 0
       applyChanges

@@ -131,6 +131,40 @@ describe "LispParedit", ->
 
       expect(editor.getCursorBufferPosition()).toEqual([1, 0])
 
+    it "should indent after barf", ->
+      editor.setText("""
+
+      (foo
+        (bar))
+      """)
+
+      editor.setCursorBufferPosition([1, 4])
+
+      atom.commands.dispatch textEditorElement, "lisp-paredit:barf-forwards"
+
+      expect(editor.getText()).toEqual("""
+
+      (foo)
+      (bar)
+      """)
+
+    it "should indent after slurp", ->
+      editor.setText("""
+
+      (foo)
+      (bar)
+      """)
+
+      editor.setCursorBufferPosition([1, 4])
+
+      atom.commands.dispatch textEditorElement, "lisp-paredit:slurp-forwards"
+
+      expect(editor.getText()).toEqual("""
+
+      (foo
+       (bar))
+      """)
+
     describe "strict mode", ->
       it "should not allow close brackets to be inserted when strict mode enabled", ->
         atom.config.set('lisp-paredit.strict', true)
