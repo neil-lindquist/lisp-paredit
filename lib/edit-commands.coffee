@@ -74,7 +74,7 @@ module.exports =
     for cursor in cursors
       index = utils.convertPointToIndex(cursor.getBufferPosition(), editor)
       indices.push index
-      newSrc = newSrc.slice(0, index) + "\n" + newSrc.slice(index)
+      newSrc = newSrc.slice(0, index) + utils.lineEnding(editor) + newSrc.slice(index)
 
     ast = paredit.parse(newSrc, {})
 
@@ -83,7 +83,7 @@ module.exports =
 
     for index in indices
       res = paredit.editor.indentRange(ast, newSrc, index+1, index+1)
-      changes.push ['insert', index, "\n"]
+      changes.push ['insert', index, utils.lineEnding(editor)]
       changes = changes.concat res.changes
       newIndexes.push res.newIndex
 

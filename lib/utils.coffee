@@ -33,6 +33,16 @@ module.exports =
   addCommands: (commands, subs, views) ->
     addCommand(command, subs, views) for command in commands
 
+  lineEnding: (editor) ->
+    editor.buffer.getPreferredLineEnding() or getDefaultLineEnding()
+
+getDefaultLineEnding = ->
+  switch atom.config.get('line-ending-selector.defaultLineEnding')
+    when 'LF' then '\n'
+    when 'CRLF' then '\r\n'
+    else
+      if process.platform == 'win32' then '\r\n' else '\n'
+
 addCommand = (command, subs, views) ->
   scope = if command.length == 3 then command[2] else 'atom-text-editor'
   subs.add atom.commands.add scope, "lisp-paredit:#{command[0]}", -> command[1](views)
