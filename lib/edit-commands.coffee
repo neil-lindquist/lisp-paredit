@@ -75,14 +75,14 @@ module.exports =
       index = utils.convertPointToIndex(cursor.getBufferPosition(), editor)
       indices.push index
       newSrc = newSrc.slice(0, index) + utils.lineEnding(editor) + newSrc.slice(index)
-
     ast = paredit.parse(newSrc, {})
 
     changes = []
     newIndexes = []
 
     for index in indices
-      res = paredit.editor.indentRange(ast, newSrc, index+1, index+1)
+      lineEnding = editor.buffer.lineEndingForRow(utils.convertIndexToPoint(index, editor).row)
+      res = paredit.editor.indentRange(ast, newSrc, index + lineEnding.length, index + lineEnding.length)
       changes.push ['insert', index, utils.lineEnding(editor)]
       changes = changes.concat res.changes
       newIndexes.push res.newIndex
@@ -189,10 +189,18 @@ edit = (fn, args = {}) ->
           applyIndent result.changes, editor
     else
       for cursor in cursors
-        index = utils.convertPointToIndex(cursor.getBufferPosition(), editor)
+        point = cursor.getBufferPosition()
+        index = utils.convertPointToIndex(point, editor)
 
         src = editor.getText()
         ast = paredit.parse(src)
+        args.count = 1
+
+        if args.backward and point.column == 0
+          args.count = editor.buffer.lineEndingForRow(point.row - 1).length
+        else if !args.backward and point.column == editor.buffer.lineLengthForRow(point.row)
+          args.count = editor.buffer.lineEndingForRow(point.row).length
+
         result = null
         try
           result = fn(ast, src, index, args)
