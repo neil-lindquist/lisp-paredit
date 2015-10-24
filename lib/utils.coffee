@@ -36,6 +36,9 @@ module.exports =
   lineEnding: (editor) ->
     editor.buffer.getPreferredLineEnding() or getDefaultLineEnding()
 
+  lineEndingForRow: (row, editor) ->
+    editor.buffer.lineEndingForRow(row) or @lineEnding(editor)
+
 getDefaultLineEnding = ->
   switch atom.config.get('line-ending-selector.defaultLineEnding')
     when 'LF' then '\n'

@@ -81,7 +81,7 @@ module.exports =
     newIndexes = []
 
     for index in indices
-      lineEndingLength = Math.max(1, editor.buffer.lineEndingForRow(utils.convertIndexToPoint(index, editor).row).length)
+      lineEndingLength = Math.max(1, utils.lineEndingForRow(utils.convertIndexToPoint(index, editor).row, editor).length)
       res = paredit.editor.indentRange(ast, newSrc, index + lineEndingLength, index + lineEndingLength)
       changes.push ['insert', index, utils.lineEnding(editor)]
       changes = changes.concat res.changes
@@ -195,10 +195,10 @@ edit = (fn, args = {}) ->
         ast = paredit.parse(src)
         args.count = 1
 
-        if args.backward and point.column == 0 and point.row > 0
-          args.count = editor.buffer.lineEndingForRow(point.row - 1).length
+        if args.backward and point.column == 0
+          args.count = utils.lineEndingForRow(point.row - 1, editor).length
         else if !args.backward and point.column == editor.buffer.lineLengthForRow(point.row)
-          args.count = editor.buffer.lineEndingForRow(point.row).length
+          args.count = utils.lineEndingForRow(point.row, editor).length
 
         result = null
         try
