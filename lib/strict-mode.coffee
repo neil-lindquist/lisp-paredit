@@ -38,8 +38,13 @@ enableEditorStrictMode = (strictSubs, editor, views) ->
           editor.moveLeft()
       closeBrace = closingBraces.some (ch) -> ch == event.text
       if closeBrace
+        p = editor.getCursorBufferPosition()
+        nextCharacter = editor.getTextInBufferRange [[p.row, p.column], [p.row, p.column + 1]]
+        if nextCharacter == event.text
+          editor.moveRight()
+        else
+          views.invalidInput()
         event.cancel()
-        views.invalidInput()
     else
       stack = []
       for c in event.text
