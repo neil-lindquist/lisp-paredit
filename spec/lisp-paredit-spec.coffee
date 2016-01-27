@@ -218,6 +218,15 @@ describe "LispParedit", ->
         atom.commands.dispatch textEditorElement, "lisp-paredit:paste"
         expect(editor.getText()).toEqual("(foo bar)")
 
+      it "should move cursor if close brace is entered", ->
+        atom.config.set('lisp-paredit.strict', true)
+        editor.setText("()")
+        editor.setCursorBufferPosition([0, 1])
+
+        editor.insertText(")")
+        expect(editor.getText()).toEqual("()")
+        expect(editor.getCursorBufferPosition()).toEqual({row: 0, column: 2})
+
 
       # TODO: work out how to send keypresses
       # it "should not allow close brackets to be deleted when strict mode enabled", ->
