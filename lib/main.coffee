@@ -120,7 +120,7 @@ enableParedit = (subs, views) ->
 observeEditor = (editor, subs, views) ->
   checkSyntax(editor, views)
   subs.add editor.onDidStopChanging ->
-    checkSyntax(editor, views)  
+    checkSyntax(editor, views)
 
 checkSyntax = (editor, views) ->
   path = editor.getPath()
