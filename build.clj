@@ -1,6 +1,6 @@
 (require 'cljs.build.api)
 
 (cljs.build.api/build "src"
-                      {:main 'lisp-paredit.core
-                       :output-dir "out"
+                      {:output-to "lib/lisp-paredit.js"
+                       :optimizations :simple
                        :target :nodejs})
