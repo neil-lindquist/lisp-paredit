@@ -1,22 +1,22 @@
 @import "ui-variables";
 
-.lisp-paredit-status {
+lisp-paredit-status {
   color: @text-color-subtle;
   border-radius: 5px;
 }
-.lisp-paredit-status > .enabled-status {
+lisp-paredit-status > .enabled-status {
   font-size: 1.5em;
 }
-.lisp-paredit-status > .strict-status {
+lisp-paredit-status > .strict-status {
   vertical-align: top;
 }
 
-.lisp-paredit-status.enabled > .enabled-status {
+lisp-paredit-status[enabled] > .enabled-status {
   color: @text-color-success;
 }
-.lisp-paredit-status.strict.enabled > .strict-status {
+lisp-paredit-status[enabled][strict] > .strict-status {
   color: @text-color-success;
 }
-.lisp-paredit-status.error {
+lisp-paredit-status[error] {
   background-color: @background-color-error !important;
 }

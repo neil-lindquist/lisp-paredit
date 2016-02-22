@@ -1,23 +1,25 @@
 (ns lisp-paredit.main
-  (:require [lisp-paredit.cljs-utils :refer [export]]
-            [cljs.nodejs :as nodejs]))
+  (:require [lisp-paredit.node :refer [export]]
+            [lisp-paredit.utils :as utils]
+            [lisp-paredit.status-bar-view :as status-bar-view]
+            [lisp-paredit.markers :as markers]
+            [lisp-paredit.strict :as strict]
+            [lisp-paredit.commands.edit :as edit]
+            [lisp-paredit.commands.navigate :as nav]
+            [cljs.nodejs :as nodejs]
+            [paredit-js.core :as paredit]
+            [atomio.config :as atom-config]
+            [atomio.commands :as atom-commands]
+            [atomio.workspace :as atom-workspace]
+            [atomio.core :as atom-core]))
 
 (nodejs/enable-util-print!)
 (defn -main [args])
 (set! *main-cli-fn* -main)
 
-(def *atom* (js/require "atom"))
-(def paredit (js/require "paredit.js"))
-(def utils (js/require "./utils"))
-(def Views (js/require "./views"))
-(def strict (js/require "./strict-mode"))
-(def nav (js/require "./navigation-commands"))
-(def edit (js/require "./edit-commands"))
-
 (def subscriptions (atom nil))
 (def persistent-subscriptions (atom nil))
 (def strict-subscriptions (atom nil))
-(def views (atom nil))
 
 (def config
   {:enabled {:type "boolean"
@@ -41,110 +43,119 @@
                       :items {:type "string"}}})
 
 (defn toggle []
-  (js/atom.config.set "lisp-paredit.enabled", (not (js/atom.config.get "lisp-paredit.enabled"))))
+  (atom-config/set "lisp-paredit.enabled", (not (atom-config/get "lisp-paredit.enabled"))))
 
 (defn toggle-strict []
-  (js/atom.config.set "lisp-paredit.strict", (not (js/atom.config.get "lisp-paredit.strict"))))
+  (atom-config/set "lisp-paredit.strict", (not (atom-config/get "lisp-paredit.strict"))))
 
-(defn check-syntax [editor views]
-  (let [path (.getPath editor)
-        ast (.parse paredit (.getText editor))
-        errors (aget ast "errors")]
-    (if errors
-      (.showErrors views editor errors)
-      (.clearErrors views editor))))
+(defn check-syntax [editor]
+  (if-let [errors (-> (.getText editor)
+                      paredit/parse
+                      :errors)]
+    (markers/show-errors editor errors)
+    (markers/clear-errors editor)))
 
-(defn observe-editor [editor subs views]
-  (check-syntax editor views)
+(defn- indent-inserted-text [event]
+  (let [text (aget event "text")
+        editor (atom-workspace/get-active-text-editor)]
+    (when (= "\n" text)
+      (.cancel event)
+      (.mutateSelectedText editor
+                           (fn [selection]
+                             (.insertText selection text)
+                             (edit/indent-range (.getBufferRange selection) editor))))))
+
+(defn- observe-editor [editor subs]
+  (check-syntax editor)
   (.add subs (.onDidStopChanging editor
-    (fn [] (check-syntax editor views)))))
+                                 (fn [] (check-syntax editor))))
+
+  (.add subs (.onWillInsertText editor
+                                indent-inserted-text)))
 
 (defn configure-paredit []
-  (let [paredit-special-forms (aget paredit "specialForms")]
+  (let [paredit-special-forms (paredit/special-forms)]
+    ;; empty paredits default special forms by popping them off the array
     (doall (map #(.pop paredit-special-forms) paredit-special-forms))
     (let [special-forms (or
-                         (.get js/atom.config "lisp-paredit.indentationForms")
+                         (atom-config/get "lisp-paredit.indentationForms")
                          [])]
       (doseq [special-form special-forms]
         (if-let [match (.match special-form #"^/(.+)/")]
           (.push paredit-special-forms (js/RegExp. (nth match 1)))
           (.push paredit-special-forms special-form))))))
 
-(defn disable-paredit [subs, views]
-  (.enabled views false)
+
+(defn disable-paredit [subs]
   (when subs (.dispose subs)))
 
-(defn enable-paredit [subs, views]
-  (.enabled views false)
-  (.addCommands utils
-                (clj->js [["slurp-backwards"     (aget edit "slurpBackwards")]
-                          ["slurp-forwards"      (aget edit "slurpForwards")]
-                          ["barf-backwards"      (aget edit "barfBackwards")]
-                          ["barf-forwards"       (aget edit "barfForwards")]
-                          ["kill-sexp-forwards"  (aget edit "killSexpForwards")]
-                          ["kill-sexp-backwards" (aget edit "killSexpBackwards")]
-                          ["splice"              (aget edit "splice")]
-                          ["splice-backwards"    (aget edit "spliceBackwards")]
-                          ["splice-forwards"     (aget edit "spliceForwards")]
-                          ["split"               (aget edit "split")]
-                          ["forward-sexp"        (aget nav "forwardSexp")]
-                          ["backward-sexp"       (aget nav "backwardSexp")]
-                          ["up-sexp"             (aget nav "upSexp")]
-                          ["down-sexp"           (aget nav "downSexp")]
-                          ["expand-selection"    (aget nav "expandSelection")]
-                          ["indent"              (aget edit "indent")]
-                          ["newline"             (aget edit "newline")]
-                          ["wrap-around-parens"  (aget edit "wrapAroundParens")]
-                          ["wrap-around-square"  (aget edit "wrapAroundSquare")]
-                          ["wrap-around-curly"   (aget edit "wrapAroundCurly")]
-                          ["toggle-strict"       toggle-strict "atom-workspace"]])
-                subs
-                views)
+(defn enable-paredit [subs]
+  (utils/add-commands
+   [["slurp-backwards"     edit/slurp-backwards]
+    ["slurp-forwards"      edit/slurp-forwards]
+    ["barf-backwards"      edit/barf-backwards]
+    ["barf-forwards"       edit/barf-forwards]
+    ["kill-sexp-forwards"  edit/kill-sexp-forwards]
+    ["kill-sexp-backwards" edit/kill-sexp-backwards]
+    ["splice"              edit/splice]
+    ["splice-backwards"    edit/splice-backwards]
+    ["splice-forwards"     edit/splice-forwards]
+    ["split"               edit/split]
+    ["forward-sexp"        nav/forward-sexp]
+    ["backward-sexp"       nav/backward-sexp]
+    ["up-sexp"             nav/up-sexp]
+    ["down-sexp"           nav/down-sexp]
+    ["expand-selection"    nav/expand-selection]
+    ["indent"              edit/indent]
+    ;  ["newline"             edit/newline]
+    ["wrap-around-parens"  edit/wrap-around-parens]
+    ["wrap-around-square"  edit/wrap-around-square]
+    ["wrap-around-curly"   edit/wrap-around-curly]
+    ["toggle-strict"       toggle-strict "atom-workspace"]]
+   subs)
   (.add subs (.observeTextEditors js/atom.workspace
-              (fn [editor]
-                (if (.isSupportedGrammar utils (.getGrammar editor))
-                  (observe-editor editor subs views)
-                  (.onDidChangeGrammar editor
-                                       (fn [grammar]
-                                         (when (.isSupportedGrammar utils (.getGrammar editor))
-                                           (observe-editor editor subs views)))))))))
+                                  (fn [editor]
+                                    (if (utils/supported-grammar? (.getGrammar editor))
+                                      (observe-editor editor subs)
+                                      (.onDidChangeGrammar editor
+                                                           (fn [grammar]
+                                                             (when (utils/supported-grammar? (.getGrammar editor))
+                                                               (observe-editor editor subs)))))))))
 
 (deftype LispParedit [config]
   Object
   (activate
    [this state]
    (configure-paredit)
-   (reset! views (Views. toggle toggle-strict))
-   (reset! persistent-subscriptions (*atom*.CompositeDisposable.))
+   (reset! persistent-subscriptions (atom-core/CompositeDisposable.))
 
-   (.addCommands utils (clj->js [["toggle" toggle "atom-workspace"]])
-                          @persistent-subscriptions
-                          @views)
-   (.observe js/atom.config
+   (utils/add-commands [["toggle" toggle "atom-workspace"]]
+                       @persistent-subscriptions)
+   (atom-config/observe
      "lisp-paredit.enabled"
      (fn [should-enable]
        (if should-enable
          (do
-           (reset! subscriptions (*atom*.CompositeDisposable.))
-           (enable-paredit @subscriptions @views)
-           (when (.get js/atom.config "lisp-paredit.strict")
-             (reset! strict-subscriptions (*atom*.CompositeDisposable.))
-             (.enableStrictMode strict @strict-subscriptions @views)))
+           (reset! subscriptions (atom-core/CompositeDisposable.))
+           (enable-paredit @subscriptions)
+           (when (atom-config/get "lisp-paredit.strict")
+             (reset! strict-subscriptions (atom-core/CompositeDisposable.))
+             (strict/enable @strict-subscriptions)))
          (do
-           (disable-paredit @subscriptions @views)
-           (.disableStrictMode strict @strict-subscriptions @views)))))
+           (disable-paredit @subscriptions)
+           (strict/disable @strict-subscriptions)))))
 
-   (.onDidChange js/atom.config
-    "lisp-paredit:strict"
+   (atom-config/on-did-change
+    "lisp-paredit.strict"
     (fn [event]
       (if (and (aget event "newValue")
-               (.get js/atom.config "lisp-paredit.enabled"))
+               (atom-config/get "lisp-paredit.enabled"))
         (do
-          (reset! strict-subscriptions (*atom*.CompositeDisposable.))
-          (.enableStrictMode strict @strict-subscriptions @views))
-        (.disableStrictMode strict @strict-subscriptions @views))))
+          (reset! strict-subscriptions (atom-core/CompositeDisposable.))
+          (strict/enable @strict-subscriptions))
+        (strict/disable @strict-subscriptions))))
 
-   (.onDidChange js/atom.config
+   (atom-config/on-did-change
     "lisp-paredit.indentationForms"
     (fn [event]
       (configure-paredit))))
@@ -156,12 +167,9 @@
       (.dispose @subscriptions))
     (when @strict-subscriptions
       (.dispose @strict-subscriptions))
-    (when @views
-      (.detach @views)))
+    (markers/detach))
 
   (consumeStatusBar [this status-bar]
-    (.setStatusBar @views status-bar)
-    (.enabled @views (.get js/atom.config "lisp-paredit.enabled"))
-    (.strictModeEnabled @views (.get js/atom.config "lisp-paredit.strict"))))
+    (status-bar-view/initialize status-bar)))
 
 (export (LispParedit. (clj->js config)))

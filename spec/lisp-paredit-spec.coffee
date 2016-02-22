@@ -1,4 +1,4 @@
-LispParedit = require '../lib/main'
+LispParedit = require '../lib/lisp-paredit'
 utils = require '../lib/utils'
 
 describe "LispParedit", ->
