@@ -6,6 +6,7 @@
             [lisp-paredit.strict :as strict]
             [lisp-paredit.commands.edit :as edit]
             [lisp-paredit.commands.navigate :as nav]
+            [lisp-paredit.ast :as ast]
             [cljs.nodejs :as nodejs]
             [paredit-js.core :as paredit]
             [atomio.config :as atom-config]
@@ -49,9 +50,7 @@
   (atom-config/set "lisp-paredit.strict", (not (atom-config/get "lisp-paredit.strict"))))
 
 (defn check-syntax [editor]
-  (if-let [errors (-> (.getText editor)
-                      paredit/parse
-                      :errors)]
+  (if-let [errors (aget (ast/get-ast editor) "error")]
     (markers/show-errors editor errors)
     (markers/clear-errors editor)))
 
@@ -63,12 +62,16 @@
       (.mutateSelectedText editor
                            (fn [selection]
                              (.insertText selection text)
-                             (edit/indent-range (.getBufferRange selection) editor))))))
+                             (ast/update-ast editor)
+                             (edit/indent-range (.getBufferRange selection) editor false)
+                           )))))
 
 (defn- observe-editor [editor subs]
   (check-syntax editor)
   (.add subs (.onDidStopChanging editor
-                                 (fn [] (check-syntax editor))))
+                                 (fn []
+                                   (ast/update-ast editor)
+                                   (check-syntax editor))))
 
   (.add subs (.onWillInsertText editor
                                 indent-inserted-text)))

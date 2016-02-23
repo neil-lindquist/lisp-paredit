@@ -39,7 +39,7 @@
         selections (.getSelectedBufferRanges editor)
         new-src    (replace-text src text selections editor)
         ast        (paredit/parse new-src)]
-    (when (not-empty (:errors ast))
+    (when (not-empty (aget ast "errors"))
       (.cancel event)
       (when-not (move-cursor text editor)
         ;; only show error if we haven't moved the cursor

@@ -2,12 +2,13 @@
   (:require [atomio.workspace :as atom-workspace]
             [atomio.core :as atom-core]
             [lisp-paredit.utils :as utils]
+            [lisp-paredit.ast :as ast]
             [paredit-js.core :as paredit]
             [paredit-js.navigator :as paredit-nav]))
 
 (defn- navigate [f]
   (let [editor (atom-workspace/get-active-text-editor)
-        ast (paredit/parse (.getText editor))
+        ast (ast/get-ast editor)
         cursor (.getCursorBufferPosition editor)
         index (utils/convert-point-to-index cursor editor)
         result (f ast index)
@@ -28,7 +29,7 @@
 
 (defn expand-selection []
   (let [editor (atom-workspace/get-active-text-editor)
-        ast (paredit/parse (.getText editor))
+        ast (ast/get-ast editor)
         range (.getSelectedBufferRange editor)
         start-index (utils/convert-point-to-index (aget range "start") editor)
         end-index (utils/convert-point-to-index (aget range "end") editor)

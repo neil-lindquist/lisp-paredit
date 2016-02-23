@@ -34,23 +34,23 @@ return null;
 });
 lisp_paredit.strict.replace_text = (function lisp_paredit$strict$replace_text(src,text,ranges,editor){
 while(true){
-var vec__10967 = ranges;
-var range = cljs.core.nth.call(null,vec__10967,(0),null);
-var rest = cljs.core.nthnext.call(null,vec__10967,(1));
+var vec__44231 = ranges;
+var range = cljs.core.nth.call(null,vec__44231,(0),null);
+var rest = cljs.core.nthnext.call(null,vec__44231,(1));
 var start = lisp_paredit.utils.convert_point_to_index.call(null,(range["start"]),editor);
 var end = lisp_paredit.utils.convert_point_to_index.call(null,(range["end"]),editor);
 var new_src = [cljs.core.str(src.slice((0),start)),cljs.core.str(text),cljs.core.str(src.slice(end))].join('');
 if(cljs.core.empty_QMARK_.call(null,rest)){
 return new_src;
 } else {
-var G__10968 = new_src;
-var G__10969 = text;
-var G__10970 = rest;
-var G__10971 = editor;
-src = G__10968;
-text = G__10969;
-ranges = G__10970;
-editor = G__10971;
+var G__44232 = new_src;
+var G__44233 = text;
+var G__44234 = rest;
+var G__44235 = editor;
+src = G__44232;
+text = G__44233;
+ranges = G__44234;
+editor = G__44235;
 continue;
 }
 break;
@@ -61,7 +61,7 @@ var src = editor.getText();
 var selections = editor.getSelectedBufferRanges();
 var new_src = lisp_paredit.strict.replace_text.call(null,src,text,selections,editor);
 var ast = paredit_js.core.parse.call(null,new_src);
-if(cljs.core.truth_(cljs.core.not_empty.call(null,new cljs.core.Keyword(null,"errors","errors",-908790718).cljs$core$IFn$_invoke$arity$1(ast)))){
+if(cljs.core.truth_(cljs.core.not_empty.call(null,(ast["errors"])))){
 event.cancel();
 
 if(cljs.core.truth_(lisp_paredit.strict.move_cursor.call(null,text,editor))){
@@ -126,51 +126,51 @@ strict_subs.dispose();
 } else {
 }
 
-var seq__10976 = cljs.core.seq.call(null,atom.workspace.getTextEditors());
-var chunk__10977 = null;
-var count__10978 = (0);
-var i__10979 = (0);
+var seq__44240 = cljs.core.seq.call(null,atom.workspace.getTextEditors());
+var chunk__44241 = null;
+var count__44242 = (0);
+var i__44243 = (0);
 while(true){
-if((i__10979 < count__10978)){
-var editor = cljs.core._nth.call(null,chunk__10977,i__10979);
+if((i__44243 < count__44242)){
+var editor = cljs.core._nth.call(null,chunk__44241,i__44243);
 lisp_paredit.utils.remove_class.call(null,atomio.views.get_view.call(null,editor),"lisp-paredit-strict");
 
-var G__10980 = seq__10976;
-var G__10981 = chunk__10977;
-var G__10982 = count__10978;
-var G__10983 = (i__10979 + (1));
-seq__10976 = G__10980;
-chunk__10977 = G__10981;
-count__10978 = G__10982;
-i__10979 = G__10983;
+var G__44244 = seq__44240;
+var G__44245 = chunk__44241;
+var G__44246 = count__44242;
+var G__44247 = (i__44243 + (1));
+seq__44240 = G__44244;
+chunk__44241 = G__44245;
+count__44242 = G__44246;
+i__44243 = G__44247;
 continue;
 } else {
-var temp__4425__auto__ = cljs.core.seq.call(null,seq__10976);
+var temp__4425__auto__ = cljs.core.seq.call(null,seq__44240);
 if(temp__4425__auto__){
-var seq__10976__$1 = temp__4425__auto__;
-if(cljs.core.chunked_seq_QMARK_.call(null,seq__10976__$1)){
-var c__6945__auto__ = cljs.core.chunk_first.call(null,seq__10976__$1);
-var G__10984 = cljs.core.chunk_rest.call(null,seq__10976__$1);
-var G__10985 = c__6945__auto__;
-var G__10986 = cljs.core.count.call(null,c__6945__auto__);
-var G__10987 = (0);
-seq__10976 = G__10984;
-chunk__10977 = G__10985;
-count__10978 = G__10986;
-i__10979 = G__10987;
+var seq__44240__$1 = temp__4425__auto__;
+if(cljs.core.chunked_seq_QMARK_.call(null,seq__44240__$1)){
+var c__6945__auto__ = cljs.core.chunk_first.call(null,seq__44240__$1);
+var G__44248 = cljs.core.chunk_rest.call(null,seq__44240__$1);
+var G__44249 = c__6945__auto__;
+var G__44250 = cljs.core.count.call(null,c__6945__auto__);
+var G__44251 = (0);
+seq__44240 = G__44248;
+chunk__44241 = G__44249;
+count__44242 = G__44250;
+i__44243 = G__44251;
 continue;
 } else {
-var editor = cljs.core.first.call(null,seq__10976__$1);
+var editor = cljs.core.first.call(null,seq__44240__$1);
 lisp_paredit.utils.remove_class.call(null,atomio.views.get_view.call(null,editor),"lisp-paredit-strict");
 
-var G__10988 = cljs.core.next.call(null,seq__10976__$1);
-var G__10989 = null;
-var G__10990 = (0);
-var G__10991 = (0);
-seq__10976 = G__10988;
-chunk__10977 = G__10989;
-count__10978 = G__10990;
-i__10979 = G__10991;
+var G__44252 = cljs.core.next.call(null,seq__44240__$1);
+var G__44253 = null;
+var G__44254 = (0);
+var G__44255 = (0);
+seq__44240 = G__44252;
+chunk__44241 = G__44253;
+count__44242 = G__44254;
+i__44243 = G__44255;
 continue;
 }
 } else {

@@ -4,10 +4,12 @@
             [atomio.commands :as atom-commands]
             [atomio.core :as atom-core]
             [lisp-paredit.utils :as utils :refer [->Point]]
+            [lisp-paredit.ast :as ast :refer [get-ast update-ast]]
             [lisp-paredit.status-bar-view :as status-bar-view]
             [paredit-js.core :as paredit]
             [paredit-js.navigator :as paredit-nav]
-            [paredit-js.editor :as paredit-editor]))
+            [paredit-js.editor :as paredit-editor]
+            [goog.object :as goog-object]))
 
 (def paredit-change-fns {"insert" (fn [editor [index text]]
                                     (let [point (utils/convert-index-to-point index editor)
@@ -25,27 +27,37 @@
 (defn- apply-changes [result editor]
   (when result
     (doall
-      (map #(apply-change editor %) (:changes result)))
-    (let [[first & rest] (remove nil? (conj (:new-indexes result) (:new-index result)))
-          point (when first (utils/convert-index-to-point first editor))]
+      (map #(apply-change editor %) (aget result "changes")))
+    (let [newIndexes (or (aget result "newIndexes")
+                         (js/Array.))
+          _          (when (aget result "newIndex") (.push newIndexes (aget result "newIndex")))
+          first      (.slice newIndexes 0 1)
+          rest       (.slice newIndexes 1)
+          point      (when first (utils/convert-index-to-point first editor))]
       (when point (.setCursorBufferPosition editor point))
       (doall
         (map
          (fn [new-index]
            (->> (utils/convert-index-to-point new-index editor)
                 (.addCursorAtBufferPosition editor)))
-         rest)))))
+         rest)))
 
-(defn indent-range [range editor]
+    ))
+
+(defn indent-range [range editor expand-if-empty?]
+  (println "indent-range" range)
   (let [src (.getText editor)
-        ast (paredit/parse src)
+        ast (get-ast editor)
         start-index (utils/convert-point-to-index (aget range "start") editor)
         end-index (utils/convert-point-to-index (aget range "end") editor)
-        [start end] (if (.isEmpty range)
+        [start end] (if (and (.isEmpty range) expand-if-empty?)
                       (paredit-nav/sexp-range-expansion ast start-index end-index)
-                      [start-index end-index])]
+                      [start-index end-index])
+        ]
+    (println start end)
     (when (and start end)
       (let [result (paredit-editor/indent-range ast src start end)]
+        (println result)
         (.transact editor
                    #(apply-changes result editor))))))
 
@@ -58,7 +70,7 @@
                       changes)
         start (->Point (apply min rows-changed) 0)
         end   (->Point (apply max rows-changed) 0)]
-    (indent-range (atom-core/Range. start end) editor)))
+    (indent-range (atom-core/Range. start end) editor false)))
 
 (defn- wrap-around-fn [start end]
   (fn [ast src index args]
@@ -69,45 +81,47 @@
     (map
      (fn [selection]
        (let [src (.getText editor)
-             ast (paredit/parse src)
+             ast (get-ast editor)
              start-index (aget (.getBufferRange selection) "start")
              end-index (aget (.getBufferRange selection) "end")
              index (utils/convert-point-to-index start-index editor)
-             args (assoc args "endIdx" (utils/convert-point-to-index end-index editor))
+             _ (goog-object/extend args (js-obj "endIdx" (utils/convert-point-to-index end-index editor)))
              result (f ast src index args)]
          (when-let [changes (and result
-                                 (:changes result))]
-           (apply-changes {:changes changes} editor)
-           (when (:indent args) (apply-indent changes editor)))
-         (when result (:newIndex result))))
+                                 (aget result "changes"))]
+           (apply-changes (js-obj "changes" changes) editor)
+           (when (aget args "indent") (apply-indent changes editor)))
+         (when result (aget result "newIndex"))))
      selections)))
 
 (defn- edit-cursors [editor cursors f args]
   (doall
     (map
      (fn [cursor]
-       (let [point  (.getBufferPosition cursor)
-             index  (utils/convert-point-to-index point editor)
-             src    (.getText editor)
-             ast    (paredit/parse src)
-             row    (cond
-                      (and (:backward args)
-                           (= 0 (aget point "column")))
-                      (dec (aget point "row"))
+       (let [args   (or args #js {})
+                   point  (.getBufferPosition cursor)
+                   index  (utils/convert-point-to-index point editor)
+                   src    (.getText editor)
+                   ast    (get-ast editor)
+                   row    (cond
+                            (and (aget args "backward")
+                                 (= 0 (aget point "column")))
+                            (dec (aget point "row"))
 
-                      (and (not (:backward args))
-                           (= (aget point "column")
-                              (.lineLengthForRow js/editor.buffer (aget point "row"))))
-                      (aget point "row"))
+                            (and (not (aget args "backward"))
+                                 (= (aget point "column")
+                                    (.lineLengthForRow js/editor.buffer (aget point "row"))))
+                            (aget point "row"))
 
-             args   (assoc args "count" (if row
-                                          (count (utils/line-ending-for-row row editor))
-                                          1))
-             result (f ast src index args)]
-         (when-let [changes (and result (:changes result))]
-           (apply-changes {:changes changes} editor)
-           (when (:indent args) (apply-indent changes editor)))
-         (when result (:newIndex result))))
+                   _      (goog-object/extend args (js-obj "count" (if row
+                                                                     (count (utils/line-ending-for-row row editor))
+                                                                     1)))
+
+                   result (f ast src index args)]
+               (when-let [changes (and result (aget result "changes"))]
+                 (apply-changes (js-obj "changes" changes) editor)
+                 (when (aget args "indent") (apply-indent changes editor)))
+               (when result (aget result "newIndex"))))
      cursors)))
 
 (defn- edit
@@ -116,44 +130,45 @@
    (let [editor (atom-workspace/get-active-text-editor)
          cursors (.getCursorsOrderedByBufferPosition editor)
          selections (remove #(.isEmpty %) (.getSelections editor))
-         args (merge {:indent true} argv)]
+         args (js-obj "indent" true)
+         _ (goog-object/extend args argv)]
+     (update-ast editor)
      (.transact editor
                 (fn []
                   (let [new-indexes (remove nil?
                                             (if (> (count selections) 0)
                                               (edit-selections editor selections f args)
-                                              (edit-cursors editor cursors f args)
-                                              ))]
+                                              (edit-cursors editor cursors f args)))]
 
                     (when (seq new-indexes)
-                      (apply-changes {:new-indexes new-indexes} editor))))))))
+                      (apply-changes (js-obj "newIndexes" (clj->js new-indexes)) editor))))))))
 
 (defn slurp-backwards  []
-  (edit paredit-editor/slurp-sexp {:backward true}))
+  (edit paredit-editor/slurp-sexp (js-obj "backward" true)))
 
 (defn slurp-forwards  []
-  (edit paredit-editor/slurp-sexp {:backward false}))
+  (edit paredit-editor/slurp-sexp (js-obj "backward" false)))
 
 (defn barf-backwards []
-  (edit paredit-editor/barf-sexp {:backward true}))
+  (edit paredit-editor/barf-sexp (js-obj "backward" true)))
 
 (defn barf-forwards []
-  (edit paredit-editor/barf-sexp {:backward false}))
+  (edit paredit-editor/barf-sexp (js-obj "backward" false)))
 
 (defn kill-sexp-forwards []
-  (edit paredit-editor/kill-sexp {:backward false}))
+  (edit paredit-editor/kill-sexp (js-obj "backward" false)))
 
 (defn kill-sexp-backwards []
-  (edit paredit-editor/kill-sexp {:backward true}))
+  (edit paredit-editor/kill-sexp (js-obj "backward" true)))
 
 (defn splice []
   (edit paredit-editor/splice-sexp))
 
 (defn splice-backwards []
-  (edit paredit-editor/splice-sexp-kill {:backward true}))
+  (edit paredit-editor/splice-sexp-kill (js-obj "backward" true)))
 
 (defn splice-forwards []
-  (edit paredit-editor/splice-sexp-kill {:backward false}))
+  (edit paredit-editor/splice-sexp-kill (js-obj "backward" false)))
 
 (defn split []
   (edit paredit-editor/split-sexp))
@@ -163,14 +178,14 @@
         ranges (.getSelectedBufferRanges editor)]
     (doall
       (map
-       #(indent-range % editor)
+       #(indent-range % editor false)
        ranges))))
 
 (defn delete-backwards []
-  (edit paredit-editor/delete {:backward true :indent false}))
+  (edit paredit-editor/delete (js-obj "backward" true "indent" false)))
 
 (defn delete-forwards []
-  (edit paredit-editor/delete {:backward false :indent false}))
+  (edit paredit-editor/delete (js-obj "backward" false "indent" false)))
 
 (defn wrap-around-parens []
   (edit (wrap-around-fn "(" ")")))
@@ -180,66 +195,3 @@
 
 (defn wrap-around-curly []
   (edit (wrap-around-fn "{" "}")))
-
-; (defn paste []
-;   (let [editor (atom-workspace/get-active-text-editor)
-;         ast (-> (.read js/atom.clipboard)
-;                 (paredit/parse))]
-;     (if (pos? (count (:errors ast)))
-;       (status-bar-view/invalid-input)
-;       (do
-;         (.transact editor
-;                    (fn []
-;                      (.pasteText editor)
-;                      (-> (.getSelectedBufferRange editor)
-;                          (indent-range editor))))))))
-
-; (defn newline []
-; (atom-commands/dispatch "atom-text-editor" "editor:newline")
-; (let [editor (atom-workspace/get-active-text-editor)
-;       cursors (.getCursorsOrderedByBufferPosition editor)
-;       indices (map #(utils/convert-point-to-index (.getCursorBufferPosition %) editor) cursors)
-;       changes []
-;       new-indexes []]
-;   (.transact
-;     editor
-;     #(apply-changes {:changes changes
-;                      :new-indexes new-indexes}
-;                     editor)))
-; )
-
-; (defn newline []
-;   (let [editor (atom-workspace/get-active-text-editor)
-;         cursors (.getCursorsOrderedByBufferPosition editor)
-;         new-src (atom (.getText editor))
-;         indices (atom [])]
-;     (doseq [cursor cursors]
-;       (let [index (utils/convert-point-to-index (.getBufferPosition cursor) editor)]
-;         (swap! indices conj index)
-;         (swap! new-src #(str (.slice % 0 index) (utils/line-ending editor) (.slice % index)))))
-;     (let [ast (paredit/parse @new-src)
-;           changes (atom [])
-;           new-indexes (atom [])]
-;       (doseq [index indices]
-;         (let [line-ending-length (js/Math.max 1 (utils/line-ending-for-row (aget (utils/convert-index-to-point index editor) "row") editor))
-;               res (paredit/indent-range ast
-;                                         @new-src
-;                                         (+ index line-ending-length)
-;                                         (+ index line-ending-length))
-;               changes.push ['insert', index, utils.lineEnding(editor)]
-;               changes = changes.concat res.changes]
-;           (swap! new-indexes conj res.newIndex)
-;           ))))
-;
-;   for index in indices
-;     lineEndingLength = Math.max(1, utils.lineEndingForRow(utils.convertIndexToPoint(index, editor).row, editor).length)
-;     res = paredit.editor.indentRange(ast, newSrc, index + lineEndingLength, index + lineEndingLength)
-;     changes.push ['insert', index, utils.lineEnding(editor)]
-;     changes = changes.concat res.changes
-;     newIndexes.push res.newIndex
-;   editor.transact ->
-;     applyChanges
-;       changes: changes
-;       newIndexes: newIndexes,
-;       editor
-; )
