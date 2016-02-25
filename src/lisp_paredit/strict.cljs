@@ -59,25 +59,20 @@
              (let [text (aget event "text")]
                (check-insert-text text editor event)))))))
 
-(defn- observe-commands [subs]
-  (.add subs (atom-commands/on-will-dispatch
-              (fn [event]
-                (let [editor (atom-workspace/get-active-text-editor)
-                      type (aget event "type")]
-                  (when (= "core:backspace" type)
-                    (.stopImmediatePropagation event)
-                    (edit/delete-backwards))
-                  (when (= "core:delete" type)
-                    (.stopImmediatePropagation event)
-                    (edit/delete-forwards)))))))
+(defn- add-commands [subs]
+  (utils/add-commands
+   [["core:backspace" (utils/editor-command-event-wrapper edit/delete-backwards)]
+    ["core:delete"    (utils/editor-command-event-wrapper edit/delete-forwards)]
+    ["core:paste"     (utils/editor-command-event-wrapper edit/paste)]]
+   subs))
 
 (defn enable [strict-subs]
   (.add strict-subs (.observeTextEditors
-                     js/atom.workspace
-                     (fn [editor]
-                       (when (utils/supported-grammar? (.getGrammar editor))
-                         (enable-editor-strict-mode strict-subs editor)))))
-  (observe-commands strict-subs))
+    js/atom.workspace
+    (fn [editor]
+      (when (utils/supported-grammar? (.getGrammar editor))
+        (enable-editor-strict-mode strict-subs editor)))))
+  (add-commands strict-subs))
 
 (defn disable [strict-subs]
   (when strict-subs (.dispose strict-subs))

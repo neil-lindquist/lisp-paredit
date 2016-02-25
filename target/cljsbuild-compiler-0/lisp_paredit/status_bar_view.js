@@ -18,55 +18,55 @@ return null;
 });})(proto))
 );
 
-var seq__43485_43491 = cljs.core.seq.call(null,attrs);
-var chunk__43486_43492 = null;
-var count__43487_43493 = (0);
-var i__43488_43494 = (0);
+var seq__45443_45449 = cljs.core.seq.call(null,attrs);
+var chunk__45444_45450 = null;
+var count__45445_45451 = (0);
+var i__45446_45452 = (0);
 while(true){
-if((i__43488_43494 < count__43487_43493)){
-var vec__43489_43495 = cljs.core._nth.call(null,chunk__43486_43492,i__43488_43494);
-var attr_43496 = cljs.core.nth.call(null,vec__43489_43495,(0),null);
-var val_43497 = cljs.core.nth.call(null,vec__43489_43495,(1),null);
-(proto[cljs.core.name.call(null,attr_43496)] = cljs.core.clj__GT_js.call(null,val_43497));
+if((i__45446_45452 < count__45445_45451)){
+var vec__45447_45453 = cljs.core._nth.call(null,chunk__45444_45450,i__45446_45452);
+var attr_45454 = cljs.core.nth.call(null,vec__45447_45453,(0),null);
+var val_45455 = cljs.core.nth.call(null,vec__45447_45453,(1),null);
+(proto[cljs.core.name.call(null,attr_45454)] = cljs.core.clj__GT_js.call(null,val_45455));
 
-var G__43498 = seq__43485_43491;
-var G__43499 = chunk__43486_43492;
-var G__43500 = count__43487_43493;
-var G__43501 = (i__43488_43494 + (1));
-seq__43485_43491 = G__43498;
-chunk__43486_43492 = G__43499;
-count__43487_43493 = G__43500;
-i__43488_43494 = G__43501;
+var G__45456 = seq__45443_45449;
+var G__45457 = chunk__45444_45450;
+var G__45458 = count__45445_45451;
+var G__45459 = (i__45446_45452 + (1));
+seq__45443_45449 = G__45456;
+chunk__45444_45450 = G__45457;
+count__45445_45451 = G__45458;
+i__45446_45452 = G__45459;
 continue;
 } else {
-var temp__4425__auto___43502 = cljs.core.seq.call(null,seq__43485_43491);
-if(temp__4425__auto___43502){
-var seq__43485_43503__$1 = temp__4425__auto___43502;
-if(cljs.core.chunked_seq_QMARK_.call(null,seq__43485_43503__$1)){
-var c__6945__auto___43504 = cljs.core.chunk_first.call(null,seq__43485_43503__$1);
-var G__43505 = cljs.core.chunk_rest.call(null,seq__43485_43503__$1);
-var G__43506 = c__6945__auto___43504;
-var G__43507 = cljs.core.count.call(null,c__6945__auto___43504);
-var G__43508 = (0);
-seq__43485_43491 = G__43505;
-chunk__43486_43492 = G__43506;
-count__43487_43493 = G__43507;
-i__43488_43494 = G__43508;
+var temp__4425__auto___45460 = cljs.core.seq.call(null,seq__45443_45449);
+if(temp__4425__auto___45460){
+var seq__45443_45461__$1 = temp__4425__auto___45460;
+if(cljs.core.chunked_seq_QMARK_.call(null,seq__45443_45461__$1)){
+var c__6945__auto___45462 = cljs.core.chunk_first.call(null,seq__45443_45461__$1);
+var G__45463 = cljs.core.chunk_rest.call(null,seq__45443_45461__$1);
+var G__45464 = c__6945__auto___45462;
+var G__45465 = cljs.core.count.call(null,c__6945__auto___45462);
+var G__45466 = (0);
+seq__45443_45449 = G__45463;
+chunk__45444_45450 = G__45464;
+count__45445_45451 = G__45465;
+i__45446_45452 = G__45466;
 continue;
 } else {
-var vec__43490_43509 = cljs.core.first.call(null,seq__43485_43503__$1);
-var attr_43510 = cljs.core.nth.call(null,vec__43490_43509,(0),null);
-var val_43511 = cljs.core.nth.call(null,vec__43490_43509,(1),null);
-(proto[cljs.core.name.call(null,attr_43510)] = cljs.core.clj__GT_js.call(null,val_43511));
+var vec__45448_45467 = cljs.core.first.call(null,seq__45443_45461__$1);
+var attr_45468 = cljs.core.nth.call(null,vec__45448_45467,(0),null);
+var val_45469 = cljs.core.nth.call(null,vec__45448_45467,(1),null);
+(proto[cljs.core.name.call(null,attr_45468)] = cljs.core.clj__GT_js.call(null,val_45469));
 
-var G__43512 = cljs.core.next.call(null,seq__43485_43503__$1);
-var G__43513 = null;
-var G__43514 = (0);
-var G__43515 = (0);
-seq__43485_43491 = G__43512;
-chunk__43486_43492 = G__43513;
-count__43487_43493 = G__43514;
-i__43488_43494 = G__43515;
+var G__45470 = cljs.core.next.call(null,seq__45443_45461__$1);
+var G__45471 = null;
+var G__45472 = (0);
+var G__45473 = (0);
+seq__45443_45449 = G__45470;
+chunk__45444_45450 = G__45471;
+count__45445_45451 = G__45472;
+i__45446_45452 = G__45473;
 continue;
 }
 } else {
@@ -115,7 +115,7 @@ return (function (event){
 return node.setStrict((event["newValue"]));
 });})(enabled_el,strict_el))
 );
-})], null),new cljs.core.PersistentArrayMap(null, 3, [new cljs.core.Keyword(null,"invalidInput","invalidInput",1493379984),(function (){
+})], null),new cljs.core.PersistentArrayMap(null, 5, [new cljs.core.Keyword(null,"invalidInput","invalidInput",1493379984),(function (){
 var this$ = this;
 this$.setAttribute("error","");
 
@@ -138,6 +138,12 @@ return node.setAttribute("strict","");
 } else {
 return node.removeAttribute("strict");
 }
+}),new cljs.core.Keyword(null,"syntaxError","syntaxError",656644703),(function (){
+var node = this;
+return node.setAttribute("syntax-error","");
+}),new cljs.core.Keyword(null,"clearError","clearError",-950666556),(function (){
+var node = this;
+return node.removeAttribute("syntax-error");
 })], null),"<span class='enabled-status'>(\u03BB)</span>\n  <span class='strict-status'>strict</span>");
 lisp_paredit.status_bar_view.initialize = (function lisp_paredit$status_bar_view$initialize(status_bar){
 var node = document.createElement("lisp-paredit-status");
@@ -151,6 +157,33 @@ var temp__4425__auto__ = lisp_paredit.status_bar_view.find_status_bar.call(null)
 if(cljs.core.truth_(temp__4425__auto__)){
 var status_bar = temp__4425__auto__;
 return status_bar.invalidInput();
+} else {
+return null;
+}
+});
+lisp_paredit.status_bar_view.detach = (function lisp_paredit$status_bar_view$detach(){
+var temp__4425__auto__ = lisp_paredit.status_bar_view.find_status_bar.call(null);
+if(cljs.core.truth_(temp__4425__auto__)){
+var status_bar = temp__4425__auto__;
+return document.removeElement(status_bar);
+} else {
+return null;
+}
+});
+lisp_paredit.status_bar_view.syntax_error = (function lisp_paredit$status_bar_view$syntax_error(){
+var temp__4425__auto__ = lisp_paredit.status_bar_view.find_status_bar.call(null);
+if(cljs.core.truth_(temp__4425__auto__)){
+var status_bar = temp__4425__auto__;
+return status_bar.syntaxError();
+} else {
+return null;
+}
+});
+lisp_paredit.status_bar_view.clear_error = (function lisp_paredit$status_bar_view$clear_error(){
+var temp__4425__auto__ = lisp_paredit.status_bar_view.find_status_bar.call(null);
+if(cljs.core.truth_(temp__4425__auto__)){
+var status_bar = temp__4425__auto__;
+return status_bar.clearError();
 } else {
 return null;
 }

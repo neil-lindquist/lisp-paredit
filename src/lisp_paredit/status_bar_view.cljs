@@ -55,7 +55,15 @@
                 node
                 (if val
                   (.setAttribute node "strict" "")
-                  (.removeAttribute node "strict"))))}
+                  (.removeAttribute node "strict"))))
+  :syntaxError (fn []
+                 (this-as
+                  node
+                  (.setAttribute node "syntax-error" "")))
+  :clearError  (fn []
+                 (this-as
+                  node
+                  (.removeAttribute node "syntax-error")))}
  "<span class='enabled-status'>(λ)</span>
   <span class='strict-status'>strict</span>")
 
@@ -70,3 +78,15 @@
 (defn invalid-input []
   (when-let [status-bar (find-status-bar)]
     (.invalidInput status-bar)))
+
+(defn detach []
+  (when-let [status-bar (find-status-bar)]
+    (.removeElement js/document status-bar)))
+
+(defn syntax-error []
+  (when-let [status-bar (find-status-bar)]
+    (.syntaxError status-bar)))
+
+(defn clear-error []
+  (when-let [status-bar (find-status-bar)]
+    (.clearError status-bar)))

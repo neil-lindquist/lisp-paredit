@@ -50,31 +50,30 @@
   (atom-config/set "lisp-paredit.strict", (not (atom-config/get "lisp-paredit.strict"))))
 
 (defn check-syntax [editor]
-  (if-let [errors (aget (ast/get-ast editor) "error")]
-    (markers/show-errors editor errors)
-    (markers/clear-errors editor)))
+  (let [errors (aget (ast/get-ast editor) "errors")]
+    (if (first errors)
+      (do
+        (markers/show-errors editor errors)
+        (markers/clear-errors editor)
+        (status-bar-view/syntax-error))
+      (status-bar-view/clear-error))))
 
-(defn- indent-inserted-text [event]
-  (let [text (aget event "text")
-        editor (atom-workspace/get-active-text-editor)]
-    (when (= "\n" text)
-      (.cancel event)
-      (.mutateSelectedText editor
-                           (fn [selection]
-                             (.insertText selection text)
-                             (ast/update-ast editor)
-                             (edit/indent-range (.getBufferRange selection) editor false)
-                           )))))
+; (defn- indent-inserted-text [event]
+;   (let [text (aget event "text")
+;         editor (atom-workspace/get-active-text-editor)]
+;     (when (= "\n" text)
+;       (.cancel event)
+;       (.mutateSelectedText editor
+;                            (fn [selection]
+;                              (.insertText selection text)
+;                              (edit/indent-range (.getBufferRange selection) editor false)
+;                            )))))
 
 (defn- observe-editor [editor subs]
   (check-syntax editor)
   (.add subs (.onDidStopChanging editor
                                  (fn []
-                                   (ast/update-ast editor)
-                                   (check-syntax editor))))
-
-  (.add subs (.onWillInsertText editor
-                                indent-inserted-text)))
+                                   (check-syntax editor)))))
 
 (defn configure-paredit []
   (let [paredit-special-forms (paredit/special-forms)]
@@ -94,27 +93,27 @@
 
 (defn enable-paredit [subs]
   (utils/add-commands
-   [["slurp-backwards"     edit/slurp-backwards]
-    ["slurp-forwards"      edit/slurp-forwards]
-    ["barf-backwards"      edit/barf-backwards]
-    ["barf-forwards"       edit/barf-forwards]
-    ["kill-sexp-forwards"  edit/kill-sexp-forwards]
-    ["kill-sexp-backwards" edit/kill-sexp-backwards]
-    ["splice"              edit/splice]
-    ["splice-backwards"    edit/splice-backwards]
-    ["splice-forwards"     edit/splice-forwards]
-    ["split"               edit/split]
-    ["forward-sexp"        nav/forward-sexp]
-    ["backward-sexp"       nav/backward-sexp]
-    ["up-sexp"             nav/up-sexp]
-    ["down-sexp"           nav/down-sexp]
-    ["expand-selection"    nav/expand-selection]
-    ["indent"              edit/indent]
-    ;  ["newline"             edit/newline]
-    ["wrap-around-parens"  edit/wrap-around-parens]
-    ["wrap-around-square"  edit/wrap-around-square]
-    ["wrap-around-curly"   edit/wrap-around-curly]
-    ["toggle-strict"       toggle-strict "atom-workspace"]]
+   [["lisp-paredit:slurp-backwards"     edit/slurp-backwards]
+    ["lisp-paredit:slurp-forwards"      edit/slurp-forwards]
+    ["lisp-paredit:barf-backwards"      edit/barf-backwards]
+    ["lisp-paredit:barf-forwards"       edit/barf-forwards]
+    ["lisp-paredit:kill-sexp-forwards"  edit/kill-sexp-forwards]
+    ["lisp-paredit:kill-sexp-backwards" edit/kill-sexp-backwards]
+    ["lisp-paredit:splice"              edit/splice]
+    ["lisp-paredit:splice-backwards"    edit/splice-backwards]
+    ["lisp-paredit:splice-forwards"     edit/splice-forwards]
+    ["lisp-paredit:split"               edit/split]
+    ["lisp-paredit:forward-sexp"        nav/forward-sexp]
+    ["lisp-paredit:backward-sexp"       nav/backward-sexp]
+    ["lisp-paredit:up-sexp"             nav/up-sexp]
+    ["lisp-paredit:down-sexp"           nav/down-sexp]
+    ["lisp-paredit:expand-selection"    nav/expand-selection]
+    ["lisp-paredit:indent"              edit/indent]
+    ["editor:newline"                   (utils/editor-command-event-wrapper edit/newline)]
+    ["lisp-paredit:wrap-around-parens"  edit/wrap-around-parens]
+    ["lisp-paredit:wrap-around-square"  edit/wrap-around-square]
+    ["lisp-paredit:wrap-around-curly"   edit/wrap-around-curly]
+    ["lisp-paredit:toggle-strict"       toggle-strict "atom-workspace"]]
    subs)
   (.add subs (.observeTextEditors js/atom.workspace
                                   (fn [editor]
@@ -132,7 +131,7 @@
    (configure-paredit)
    (reset! persistent-subscriptions (atom-core/CompositeDisposable.))
 
-   (utils/add-commands [["toggle" toggle "atom-workspace"]]
+   (utils/add-commands [["lisp-paredit:toggle" toggle "atom-workspace"]]
                        @persistent-subscriptions)
    (atom-config/observe
      "lisp-paredit.enabled"
@@ -170,7 +169,8 @@
       (.dispose @subscriptions))
     (when @strict-subscriptions
       (.dispose @strict-subscriptions))
-    (markers/detach))
+    (markers/detach)
+     (status-bar-view/detach))
 
   (consumeStatusBar [this status-bar]
     (status-bar-view/initialize status-bar)))

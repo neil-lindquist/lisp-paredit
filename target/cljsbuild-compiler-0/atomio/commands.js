@@ -6,23 +6,23 @@ atomio.commands.workspace_view = (function atomio$commands$workspace_view(){
 return atomio.views.get_view.call(null,atom.workspace);
 });
 atomio.commands.dispatch = (function atomio$commands$dispatch(var_args){
-var args43463 = [];
-var len__7200__auto___43466 = arguments.length;
-var i__7201__auto___43467 = (0);
+var args36188 = [];
+var len__7200__auto___36191 = arguments.length;
+var i__7201__auto___36192 = (0);
 while(true){
-if((i__7201__auto___43467 < len__7200__auto___43466)){
-args43463.push((arguments[i__7201__auto___43467]));
+if((i__7201__auto___36192 < len__7200__auto___36191)){
+args36188.push((arguments[i__7201__auto___36192]));
 
-var G__43468 = (i__7201__auto___43467 + (1));
-i__7201__auto___43467 = G__43468;
+var G__36193 = (i__7201__auto___36192 + (1));
+i__7201__auto___36192 = G__36193;
 continue;
 } else {
 }
 break;
 }
 
-var G__43465 = args43463.length;
-switch (G__43465) {
+var G__36190 = args36188.length;
+switch (G__36190) {
 case 1:
 return atomio.commands.dispatch.cljs$core$IFn$_invoke$arity$1((arguments[(0)]));
 
@@ -32,7 +32,7 @@ return atomio.commands.dispatch.cljs$core$IFn$_invoke$arity$2((arguments[(0)]),(
 
 break;
 default:
-throw (new Error([cljs.core.str("Invalid arity: "),cljs.core.str(args43463.length)].join('')));
+throw (new Error([cljs.core.str("Invalid arity: "),cljs.core.str(args36188.length)].join('')));
 
 }
 });
@@ -47,23 +47,23 @@ return atom.commands.dispatch(view,command);
 
 atomio.commands.dispatch.cljs$lang$maxFixedArity = 2;
 atomio.commands.add = (function atomio$commands$add(var_args){
-var args43470 = [];
-var len__7200__auto___43473 = arguments.length;
-var i__7201__auto___43474 = (0);
+var args36195 = [];
+var len__7200__auto___36198 = arguments.length;
+var i__7201__auto___36199 = (0);
 while(true){
-if((i__7201__auto___43474 < len__7200__auto___43473)){
-args43470.push((arguments[i__7201__auto___43474]));
+if((i__7201__auto___36199 < len__7200__auto___36198)){
+args36195.push((arguments[i__7201__auto___36199]));
 
-var G__43475 = (i__7201__auto___43474 + (1));
-i__7201__auto___43474 = G__43475;
+var G__36200 = (i__7201__auto___36199 + (1));
+i__7201__auto___36199 = G__36200;
 continue;
 } else {
 }
 break;
 }
 
-var G__43472 = args43470.length;
-switch (G__43472) {
+var G__36197 = args36195.length;
+switch (G__36197) {
 case 2:
 return atomio.commands.add.cljs$core$IFn$_invoke$arity$2((arguments[(0)]),(arguments[(1)]));
 
@@ -73,7 +73,7 @@ return atomio.commands.add.cljs$core$IFn$_invoke$arity$3((arguments[(0)]),(argum
 
 break;
 default:
-throw (new Error([cljs.core.str("Invalid arity: "),cljs.core.str(args43470.length)].join('')));
+throw (new Error([cljs.core.str("Invalid arity: "),cljs.core.str(args36195.length)].join('')));
 
 }
 });

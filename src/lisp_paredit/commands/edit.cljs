@@ -4,7 +4,7 @@
             [atomio.commands :as atom-commands]
             [atomio.core :as atom-core]
             [lisp-paredit.utils :as utils :refer [->Point]]
-            [lisp-paredit.ast :as ast :refer [get-ast update-ast]]
+            [lisp-paredit.ast :as ast :refer [get-ast]]
             [lisp-paredit.status-bar-view :as status-bar-view]
             [paredit-js.core :as paredit]
             [paredit-js.navigator :as paredit-nav]
@@ -45,7 +45,7 @@
     ))
 
 (defn indent-range [range editor expand-if-empty?]
-  (println "indent-range" range)
+  ; (println "indent-range" range)
   (let [src (.getText editor)
         ast (get-ast editor)
         start-index (utils/convert-point-to-index (aget range "start") editor)
@@ -54,10 +54,10 @@
                       (paredit-nav/sexp-range-expansion ast start-index end-index)
                       [start-index end-index])
         ]
-    (println start end)
+    ; (println start end)
     (when (and start end)
       (let [result (paredit-editor/indent-range ast src start end)]
-        (println result)
+        ; (println result)
         (.transact editor
                    #(apply-changes result editor))))))
 
@@ -132,7 +132,6 @@
          selections (remove #(.isEmpty %) (.getSelections editor))
          args (js-obj "indent" true)
          _ (goog-object/extend args argv)]
-     (update-ast editor)
      (.transact editor
                 (fn []
                   (let [new-indexes (remove nil?
@@ -195,3 +194,9 @@
 
 (defn wrap-around-curly []
   (edit (wrap-around-fn "{" "}")))
+
+(defn paste []
+  (println "paaste"))
+
+(defn newline []
+  (println "newline"))

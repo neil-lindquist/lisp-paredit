@@ -31,43 +31,23 @@ lisp_paredit.main.toggle_strict = (function lisp_paredit$main$toggle_strict(){
 return atomio.config.set.call(null,"lisp-paredit.strict",cljs.core.not.call(null,atomio.config.get.call(null,"lisp-paredit.strict")));
 });
 lisp_paredit.main.check_syntax = (function lisp_paredit$main$check_syntax(editor){
-var temp__4423__auto__ = (lisp_paredit.ast.get_ast.call(null,editor)["error"]);
-if(cljs.core.truth_(temp__4423__auto__)){
-var errors = temp__4423__auto__;
-return lisp_paredit.markers.show_errors.call(null,editor,errors);
+var errors = (lisp_paredit.ast.get_ast.call(null,editor)["errors"]);
+if(cljs.core.truth_(cljs.core.first.call(null,errors))){
+lisp_paredit.markers.show_errors.call(null,editor,errors);
+
+lisp_paredit.markers.clear_errors.call(null,editor);
+
+return lisp_paredit.status_bar_view.syntax_error.call(null);
 } else {
-return lisp_paredit.markers.clear_errors.call(null,editor);
-}
-});
-lisp_paredit.main.indent_inserted_text = (function lisp_paredit$main$indent_inserted_text(event){
-var text = (event["text"]);
-var editor = atomio.workspace.get_active_text_editor.call(null);
-if(cljs.core._EQ_.call(null,"\n",text)){
-event.cancel();
-
-return editor.mutateSelectedText(((function (text,editor){
-return (function (selection){
-selection.insertText(text);
-
-lisp_paredit.ast.update_ast.call(null,editor);
-
-return lisp_paredit.commands.edit.indent_range.call(null,selection.getBufferRange(),editor,false);
-});})(text,editor))
-);
-} else {
-return null;
+return lisp_paredit.status_bar_view.clear_error.call(null);
 }
 });
 lisp_paredit.main.observe_editor = (function lisp_paredit$main$observe_editor(editor,subs){
 lisp_paredit.main.check_syntax.call(null,editor);
 
-subs.add(editor.onDidStopChanging((function (){
-lisp_paredit.ast.update_ast.call(null,editor);
-
+return subs.add(editor.onDidStopChanging((function (){
 return lisp_paredit.main.check_syntax.call(null,editor);
 })));
-
-return subs.add(editor.onWillInsertText(lisp_paredit.main.indent_inserted_text));
 });
 lisp_paredit.main.configure_paredit = (function lisp_paredit$main$configure_paredit(){
 var paredit_special_forms = paredit_js.core.special_forms.call(null);
@@ -84,63 +64,63 @@ return or__6142__auto__;
 return cljs.core.PersistentVector.EMPTY;
 }
 })();
-var seq__44262 = cljs.core.seq.call(null,special_forms);
-var chunk__44263 = null;
-var count__44264 = (0);
-var i__44265 = (0);
+var seq__51096 = cljs.core.seq.call(null,special_forms);
+var chunk__51097 = null;
+var count__51098 = (0);
+var i__51099 = (0);
 while(true){
-if((i__44265 < count__44264)){
-var special_form = cljs.core._nth.call(null,chunk__44263,i__44265);
-var temp__4423__auto___44266 = special_form.match(/^\/(.+)\//);
-if(cljs.core.truth_(temp__4423__auto___44266)){
-var match_44267 = temp__4423__auto___44266;
-paredit_special_forms.push((new RegExp(cljs.core.nth.call(null,match_44267,(1)))));
+if((i__51099 < count__51098)){
+var special_form = cljs.core._nth.call(null,chunk__51097,i__51099);
+var temp__4423__auto___51100 = special_form.match(/^\/(.+)\//);
+if(cljs.core.truth_(temp__4423__auto___51100)){
+var match_51101 = temp__4423__auto___51100;
+paredit_special_forms.push((new RegExp(cljs.core.nth.call(null,match_51101,(1)))));
 } else {
 paredit_special_forms.push(special_form);
 }
 
-var G__44268 = seq__44262;
-var G__44269 = chunk__44263;
-var G__44270 = count__44264;
-var G__44271 = (i__44265 + (1));
-seq__44262 = G__44268;
-chunk__44263 = G__44269;
-count__44264 = G__44270;
-i__44265 = G__44271;
+var G__51102 = seq__51096;
+var G__51103 = chunk__51097;
+var G__51104 = count__51098;
+var G__51105 = (i__51099 + (1));
+seq__51096 = G__51102;
+chunk__51097 = G__51103;
+count__51098 = G__51104;
+i__51099 = G__51105;
 continue;
 } else {
-var temp__4425__auto__ = cljs.core.seq.call(null,seq__44262);
+var temp__4425__auto__ = cljs.core.seq.call(null,seq__51096);
 if(temp__4425__auto__){
-var seq__44262__$1 = temp__4425__auto__;
-if(cljs.core.chunked_seq_QMARK_.call(null,seq__44262__$1)){
-var c__6945__auto__ = cljs.core.chunk_first.call(null,seq__44262__$1);
-var G__44272 = cljs.core.chunk_rest.call(null,seq__44262__$1);
-var G__44273 = c__6945__auto__;
-var G__44274 = cljs.core.count.call(null,c__6945__auto__);
-var G__44275 = (0);
-seq__44262 = G__44272;
-chunk__44263 = G__44273;
-count__44264 = G__44274;
-i__44265 = G__44275;
+var seq__51096__$1 = temp__4425__auto__;
+if(cljs.core.chunked_seq_QMARK_.call(null,seq__51096__$1)){
+var c__6945__auto__ = cljs.core.chunk_first.call(null,seq__51096__$1);
+var G__51106 = cljs.core.chunk_rest.call(null,seq__51096__$1);
+var G__51107 = c__6945__auto__;
+var G__51108 = cljs.core.count.call(null,c__6945__auto__);
+var G__51109 = (0);
+seq__51096 = G__51106;
+chunk__51097 = G__51107;
+count__51098 = G__51108;
+i__51099 = G__51109;
 continue;
 } else {
-var special_form = cljs.core.first.call(null,seq__44262__$1);
-var temp__4423__auto___44276 = special_form.match(/^\/(.+)\//);
-if(cljs.core.truth_(temp__4423__auto___44276)){
-var match_44277 = temp__4423__auto___44276;
-paredit_special_forms.push((new RegExp(cljs.core.nth.call(null,match_44277,(1)))));
+var special_form = cljs.core.first.call(null,seq__51096__$1);
+var temp__4423__auto___51110 = special_form.match(/^\/(.+)\//);
+if(cljs.core.truth_(temp__4423__auto___51110)){
+var match_51111 = temp__4423__auto___51110;
+paredit_special_forms.push((new RegExp(cljs.core.nth.call(null,match_51111,(1)))));
 } else {
 paredit_special_forms.push(special_form);
 }
 
-var G__44278 = cljs.core.next.call(null,seq__44262__$1);
-var G__44279 = null;
-var G__44280 = (0);
-var G__44281 = (0);
-seq__44262 = G__44278;
-chunk__44263 = G__44279;
-count__44264 = G__44280;
-i__44265 = G__44281;
+var G__51112 = cljs.core.next.call(null,seq__51096__$1);
+var G__51113 = null;
+var G__51114 = (0);
+var G__51115 = (0);
+seq__51096 = G__51112;
+chunk__51097 = G__51113;
+count__51098 = G__51114;
+i__51099 = G__51115;
 continue;
 }
 } else {
@@ -158,7 +138,7 @@ return null;
 }
 });
 lisp_paredit.main.enable_paredit = (function lisp_paredit$main$enable_paredit(subs){
-lisp_paredit.utils.add_commands.call(null,new cljs.core.PersistentVector(null, 20, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, ["slurp-backwards",lisp_paredit.commands.edit.slurp_backwards], null),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, ["slurp-forwards",lisp_paredit.commands.edit.slurp_forwards], null),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, ["barf-backwards",lisp_paredit.commands.edit.barf_backwards], null),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, ["barf-forwards",lisp_paredit.commands.edit.barf_forwards], null),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, ["kill-sexp-forwards",lisp_paredit.commands.edit.kill_sexp_forwards], null),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, ["kill-sexp-backwards",lisp_paredit.commands.edit.kill_sexp_backwards], null),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, ["splice",lisp_paredit.commands.edit.splice], null),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, ["splice-backwards",lisp_paredit.commands.edit.splice_backwards], null),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, ["splice-forwards",lisp_paredit.commands.edit.splice_forwards], null),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, ["split",lisp_paredit.commands.edit.split], null),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, ["forward-sexp",lisp_paredit.commands.navigate.forward_sexp], null),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, ["backward-sexp",lisp_paredit.commands.navigate.backward_sexp], null),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, ["up-sexp",lisp_paredit.commands.navigate.up_sexp], null),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, ["down-sexp",lisp_paredit.commands.navigate.down_sexp], null),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, ["expand-selection",lisp_paredit.commands.navigate.expand_selection], null),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, ["indent",lisp_paredit.commands.edit.indent], null),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, ["wrap-around-parens",lisp_paredit.commands.edit.wrap_around_parens], null),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, ["wrap-around-square",lisp_paredit.commands.edit.wrap_around_square], null),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, ["wrap-around-curly",lisp_paredit.commands.edit.wrap_around_curly], null),new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, ["toggle-strict",lisp_paredit.main.toggle_strict,"atom-workspace"], null)], null),subs);
+lisp_paredit.utils.add_commands.call(null,new cljs.core.PersistentVector(null, 21, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, ["lisp-paredit:slurp-backwards",lisp_paredit.commands.edit.slurp_backwards], null),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, ["lisp-paredit:slurp-forwards",lisp_paredit.commands.edit.slurp_forwards], null),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, ["lisp-paredit:barf-backwards",lisp_paredit.commands.edit.barf_backwards], null),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, ["lisp-paredit:barf-forwards",lisp_paredit.commands.edit.barf_forwards], null),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, ["lisp-paredit:kill-sexp-forwards",lisp_paredit.commands.edit.kill_sexp_forwards], null),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, ["lisp-paredit:kill-sexp-backwards",lisp_paredit.commands.edit.kill_sexp_backwards], null),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, ["lisp-paredit:splice",lisp_paredit.commands.edit.splice], null),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, ["lisp-paredit:splice-backwards",lisp_paredit.commands.edit.splice_backwards], null),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, ["lisp-paredit:splice-forwards",lisp_paredit.commands.edit.splice_forwards], null),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, ["lisp-paredit:split",lisp_paredit.commands.edit.split], null),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, ["lisp-paredit:forward-sexp",lisp_paredit.commands.navigate.forward_sexp], null),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, ["lisp-paredit:backward-sexp",lisp_paredit.commands.navigate.backward_sexp], null),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, ["lisp-paredit:up-sexp",lisp_paredit.commands.navigate.up_sexp], null),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, ["lisp-paredit:down-sexp",lisp_paredit.commands.navigate.down_sexp], null),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, ["lisp-paredit:expand-selection",lisp_paredit.commands.navigate.expand_selection], null),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, ["lisp-paredit:indent",lisp_paredit.commands.edit.indent], null),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, ["editor:newline",lisp_paredit.utils.editor_command_event_wrapper.call(null,lisp_paredit.commands.edit.newline)], null),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, ["lisp-paredit:wrap-around-parens",lisp_paredit.commands.edit.wrap_around_parens], null),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, ["lisp-paredit:wrap-around-square",lisp_paredit.commands.edit.wrap_around_square], null),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, ["lisp-paredit:wrap-around-curly",lisp_paredit.commands.edit.wrap_around_curly], null),new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, ["lisp-paredit:toggle-strict",lisp_paredit.main.toggle_strict,"atom-workspace"], null)], null),subs);
 
 return subs.add(atom.workspace.observeTextEditors((function (editor){
 if(cljs.core.truth_(lisp_paredit.utils.supported_grammar_QMARK_.call(null,editor.getGrammar()))){
@@ -189,7 +169,7 @@ lisp_paredit.main.configure_paredit.call(null);
 
 cljs.core.reset_BANG_.call(null,lisp_paredit.main.persistent_subscriptions,(new atomio.core.CompositeDisposable()));
 
-lisp_paredit.utils.add_commands.call(null,new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, ["toggle",lisp_paredit.main.toggle,"atom-workspace"], null)], null),cljs.core.deref.call(null,lisp_paredit.main.persistent_subscriptions));
+lisp_paredit.utils.add_commands.call(null,new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, ["lisp-paredit:toggle",lisp_paredit.main.toggle,"atom-workspace"], null)], null),cljs.core.deref.call(null,lisp_paredit.main.persistent_subscriptions));
 
 atomio.config.observe.call(null,"lisp-paredit.enabled",((function (this$){
 return (function (should_enable){
@@ -256,7 +236,9 @@ cljs.core.deref.call(null,lisp_paredit.main.strict_subscriptions).dispose();
 } else {
 }
 
-return lisp_paredit.markers.detach.call(null);
+lisp_paredit.markers.detach.call(null);
+
+return lisp_paredit.status_bar_view.detach.call(null);
 });
 
 lisp_paredit.main.LispParedit.prototype.consumeStatusBar = (function (status_bar){

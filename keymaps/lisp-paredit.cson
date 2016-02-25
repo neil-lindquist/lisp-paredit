@@ -10,6 +10,9 @@
   'cmd-delete':         'lisp-paredit:kill-sexp-forwards'
   'cmd-backspace':      'lisp-paredit:kill-sexp-backwards'
 
+  # 'alt-delete':         'lisp-paredit:soft-delete-forwards'
+  # 'alt-backspace':      'lisp-paredit:soft-delete-backwards'
+
   'ctrl-alt-i':         'lisp-paredit:indent'
 
   'ctrl-right':         'lisp-paredit:forward-sexp'
@@ -17,8 +20,6 @@
   'ctrl-up':            'lisp-paredit:up-sexp'
   'ctrl-down':          'lisp-paredit:down-sexp'
   'ctrl-w':             'lisp-paredit:expand-selection'
-
-  # 'enter':              'lisp-paredit:newline'
 
   'ctrl-alt-up':        'lisp-paredit:splice-backwards'
   'ctrl-alt-down':      'lisp-paredit:splice-forwards'
@@ -28,13 +29,3 @@
   'ctrl-alt-9':         'lisp-paredit:wrap-around-parens'
   'ctrl-alt-[':         'lisp-paredit:wrap-around-square'
   'ctrl-alt-{':         'lisp-paredit:wrap-around-curly'
-
-# 'atom-text-editor[data-grammar~="clojure"].lisp-paredit-strict,
-#  atom-text-editor[data-grammar~="lisp"].lisp-paredit-strict,
-#  atom-text-editor[data-grammar~="newlisp"].lisp-paredit-strict,
-#  atom-text-editor[data-grammar~="scheme"].lisp-paredit-strict':
-#   'backspace':          'lisp-paredit:delete-backwards'
-#   'ctrl-h':             'lisp-paredit:delete-backwards'
-#   'delete':             'lisp-paredit:delete-forwards'
-#   'ctrl-d':             'lisp-paredit:delete-forwards'
-  # 'cmd-v':              'lisp-paredit:paste'
