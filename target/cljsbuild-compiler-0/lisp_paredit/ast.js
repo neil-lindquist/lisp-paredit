@@ -16,10 +16,10 @@ var hash = ((((h << (5)) - h) + c) | (0));
 if(cljs.core._EQ_.call(null,i,(cljs.core.count.call(null,str) - (1)))){
 return hash;
 } else {
-var G__43879 = hash;
-var G__43880 = (i + (1));
-h = G__43879;
-i = G__43880;
+var G__19871 = hash;
+var G__19872 = (i + (1));
+h = G__19871;
+i = G__19872;
 continue;
 }
 break;
@@ -47,14 +47,14 @@ return existing_ast;
 } else {
 var ast = paredit_js.core.parse.call(null,src);
 cljs.core.swap_BANG_.call(null,lisp_paredit.ast.asts,((function (ast,src,path,hashcode,existing_hashcode,existing_ast){
-return (function (p1__43881_SHARP_){
-return cljs.core.assoc.call(null,p1__43881_SHARP_,path,ast);
+return (function (p1__19873_SHARP_){
+return cljs.core.assoc.call(null,p1__19873_SHARP_,path,ast);
 });})(ast,src,path,hashcode,existing_hashcode,existing_ast))
 );
 
 cljs.core.swap_BANG_.call(null,lisp_paredit.ast.hashcodes,((function (ast,src,path,hashcode,existing_hashcode,existing_ast){
-return (function (p1__43882_SHARP_){
-return cljs.core.assoc.call(null,p1__43882_SHARP_,path,hashcode);
+return (function (p1__19874_SHARP_){
+return cljs.core.assoc.call(null,p1__19874_SHARP_,path,hashcode);
 });})(ast,src,path,hashcode,existing_hashcode,existing_ast))
 );
 

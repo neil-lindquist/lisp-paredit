@@ -1,6 +1,5 @@
 (ns lisp-paredit.main
-  (:require [lisp-paredit.node :refer [export]]
-            [lisp-paredit.utils :as utils]
+  (:require [lisp-paredit.utils :refer [lisp-selector] :as utils]
             [lisp-paredit.status-bar-view :as status-bar-view]
             [lisp-paredit.markers :as markers]
             [lisp-paredit.strict :as strict]
@@ -54,20 +53,10 @@
     (if (first errors)
       (do
         (markers/show-errors editor errors)
-        (markers/clear-errors editor)
         (status-bar-view/syntax-error))
-      (status-bar-view/clear-error))))
-
-; (defn- indent-inserted-text [event]
-;   (let [text (aget event "text")
-;         editor (atom-workspace/get-active-text-editor)]
-;     (when (= "\n" text)
-;       (.cancel event)
-;       (.mutateSelectedText editor
-;                            (fn [selection]
-;                              (.insertText selection text)
-;                              (edit/indent-range (.getBufferRange selection) editor false)
-;                            )))))
+      (do
+        (markers/clear-errors editor)
+        (status-bar-view/clear-error)))))
 
 (defn- observe-editor [editor subs]
   (check-syntax editor)
@@ -86,7 +75,6 @@
         (if-let [match (.match special-form #"^/(.+)/")]
           (.push paredit-special-forms (js/RegExp. (nth match 1)))
           (.push paredit-special-forms special-form))))))
-
 
 (defn disable-paredit [subs]
   (when subs (.dispose subs)))
@@ -109,7 +97,7 @@
     ["lisp-paredit:down-sexp"           nav/down-sexp]
     ["lisp-paredit:expand-selection"    nav/expand-selection]
     ["lisp-paredit:indent"              edit/indent]
-    ["editor:newline"                   (utils/editor-command-event-wrapper edit/newline)]
+    ["editor:newline"                   (utils/editor-command-event-wrapper edit/newline) lisp-selector]
     ["lisp-paredit:wrap-around-parens"  edit/wrap-around-parens]
     ["lisp-paredit:wrap-around-square"  edit/wrap-around-square]
     ["lisp-paredit:wrap-around-curly"   edit/wrap-around-curly]
@@ -175,4 +163,6 @@
   (consumeStatusBar [this status-bar]
     (status-bar-view/initialize status-bar)))
 
-(export (LispParedit. (clj->js config)))
+(set!
+  (.-exports js/module)
+  (LispParedit. (clj->js config)))

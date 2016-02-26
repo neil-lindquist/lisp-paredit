@@ -8,6 +8,11 @@
 
 (def grammars #{"Clojure" "Lisp" "Scheme" "Newlisp"})
 
+(def lisp-selector "atom-text-editor[data-grammar~=\"clojure\"],
+                    atom-text-editor[data-grammar~=\"lisp\"],
+                    atom-text-editor[data-grammar~=\"newlisp\"],
+                    atom-text-editor[data-grammar~=\"scheme\"]")
+
 (defn- get-default-line-ending []
   (condp = (atom-config/get "line-ending-selector.defaultLineEnding")
     "LF"    "\n"

@@ -1,4 +1,5 @@
 (ns lisp-paredit.markers
+  (:refer-clojure :exclude [->Range])
   (:require [lisp-paredit.utils :as utils :refer [->Range]]))
 
 (def syntax-markers (atom {}))
@@ -9,17 +10,12 @@
   (swap! syntax-markers #(assoc % (aget editor "id") [])))
 
 (defn show-errors [editor errors]
-  (println "show-errors" errors)
   (clear-errors editor)
   (when (seq errors)
-    (println "seq errors")
     (doseq [error errors]
-      (println "error" error)
       (let [range (->Range (utils/convert-index-to-point (aget error "start") editor)
                            (utils/convert-index-to-point (aget error "end") editor))
             marker (.markBufferRange editor range (js-obj "invalidate" "touch"))]
-        (println "marker" marker)
-        (println "range" range)
         (.decorateMarker editor marker (js-obj "type"  "highlight"
                                                "class" "lisp-syntax-error"))
         (swap! syntax-markers #(update %

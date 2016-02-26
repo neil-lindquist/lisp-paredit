@@ -40,24 +40,23 @@
          (fn [new-index]
            (->> (utils/convert-index-to-point new-index editor)
                 (.addCursorAtBufferPosition editor)))
-         rest)))
-
-    ))
+         rest)))))
 
 (defn indent-range [range editor expand-if-empty?]
-  ; (println "indent-range" range)
+  (println "indent-range" range editor)
   (let [src (.getText editor)
         ast (get-ast editor)
         start-index (utils/convert-point-to-index (aget range "start") editor)
         end-index (utils/convert-point-to-index (aget range "end") editor)
         [start end] (if (and (.isEmpty range) expand-if-empty?)
                       (paredit-nav/sexp-range-expansion ast start-index end-index)
-                      [start-index end-index])
-        ]
-    ; (println start end)
+                      [start-index end-index])]
     (when (and start end)
+      (println ast src start end)
       (let [result (paredit-editor/indent-range ast src start end)]
-        ; (println result)
+        (println "changes" (aget result "changes"))
+        (println "newIndex" (aget result "newIndex"))
+        (println "newIndex" (utils/convert-index-to-point (aget result "newIndex") editor))
         (.transact editor
                    #(apply-changes result editor))))))
 
@@ -196,7 +195,13 @@
   (edit (wrap-around-fn "{" "}")))
 
 (defn paste []
-  (println "paaste"))
+  )
+
 
 (defn newline []
-  (println "newline"))
+  (let [editor (atom-workspace/get-active-text-editor)]
+    (.transact
+     editor
+     (fn []
+       (.insertNewline editor)
+       (indent)))))

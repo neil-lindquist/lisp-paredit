@@ -1,4 +1,5 @@
-(ns atomio.config)
+(ns atomio.config
+  (:refer-clojure :exclude [get set]))
 
 (defn set [name val]
   (.set js/atom.config name val))
