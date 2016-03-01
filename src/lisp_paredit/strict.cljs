@@ -62,8 +62,7 @@
 (defn- add-commands [subs]
   (utils/add-commands
    [["core:backspace" (utils/editor-command-event-wrapper edit/delete-backwards) lisp-selector]
-    ["core:delete"    (utils/editor-command-event-wrapper edit/delete-forwards)  lisp-selector]
-    ["core:paste"     (utils/editor-command-event-wrapper edit/paste)            lisp-selector]]
+    ["core:delete"    (utils/editor-command-event-wrapper edit/delete-forwards)  lisp-selector]]
    subs))
 
 (defn enable [strict-subs]

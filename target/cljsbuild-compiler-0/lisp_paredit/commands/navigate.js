@@ -37,9 +37,9 @@ var end_index = lisp_paredit.utils.convert_point_to_index.call(null,(range["end"
 var res = paredit_js.navigator.sexp_range_expansion.call(null,ast,start_index,end_index);
 var temp__4425__auto__ = res;
 if(cljs.core.truth_(temp__4425__auto__)){
-var vec__19967 = temp__4425__auto__;
-var start = cljs.core.nth.call(null,vec__19967,(0),null);
-var end = cljs.core.nth.call(null,vec__19967,(1),null);
+var vec__11357 = temp__4425__auto__;
+var start = cljs.core.nth.call(null,vec__11357,(0),null);
+var end = cljs.core.nth.call(null,vec__11357,(1),null);
 return editor.setSelectedBufferRange((new atomio.core.Range(lisp_paredit.utils.convert_index_to_point.call(null,start,editor),lisp_paredit.utils.convert_index_to_point.call(null,end,editor))));
 } else {
 return null;

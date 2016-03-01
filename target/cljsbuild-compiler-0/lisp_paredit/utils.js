@@ -9,12 +9,12 @@ goog.require('atomio.commands');
 lisp_paredit.utils.grammars = new cljs.core.PersistentHashSet(null, new cljs.core.PersistentArrayMap(null, 4, ["Lisp",null,"Scheme",null,"Newlisp",null,"Clojure",null], null), null);
 lisp_paredit.utils.lisp_selector = "atom-text-editor[data-grammar~=\"clojure\"],\n                    atom-text-editor[data-grammar~=\"lisp\"],\n                    atom-text-editor[data-grammar~=\"newlisp\"],\n                    atom-text-editor[data-grammar~=\"scheme\"]";
 lisp_paredit.utils.get_default_line_ending = (function lisp_paredit$utils$get_default_line_ending(){
-var pred__17377 = cljs.core._EQ_;
-var expr__17378 = atomio.config.get.call(null,"line-ending-selector.defaultLineEnding");
-if(cljs.core.truth_(pred__17377.call(null,"LF",expr__17378))){
+var pred__11235 = cljs.core._EQ_;
+var expr__11236 = atomio.config.get.call(null,"line-ending-selector.defaultLineEnding");
+if(cljs.core.truth_(pred__11235.call(null,"LF",expr__11236))){
 return "\n";
 } else {
-if(cljs.core.truth_(pred__17377.call(null,"CRLF",expr__17378))){
+if(cljs.core.truth_(pred__11235.call(null,"CRLF",expr__11236))){
 return "\r\n";
 } else {
 if(cljs.core._EQ_.call(null,"win32",process.platform)){
@@ -25,11 +25,11 @@ return "\n";
 }
 }
 });
-lisp_paredit.utils.add_command = (function lisp_paredit$utils$add_command(p__17380,subs){
-var vec__17382 = p__17380;
-var command = cljs.core.nth.call(null,vec__17382,(0),null);
-var comm_fn = cljs.core.nth.call(null,vec__17382,(1),null);
-var comm_scope = cljs.core.nth.call(null,vec__17382,(2),null);
+lisp_paredit.utils.add_command = (function lisp_paredit$utils$add_command(p__11238,subs){
+var vec__11240 = p__11238;
+var command = cljs.core.nth.call(null,vec__11240,(0),null);
+var comm_fn = cljs.core.nth.call(null,vec__11240,(1),null);
+var comm_scope = cljs.core.nth.call(null,vec__11240,(2),null);
 var scope = (function (){var or__6142__auto__ = comm_scope;
 if(cljs.core.truth_(or__6142__auto__)){
 return or__6142__auto__;
@@ -71,51 +71,51 @@ var p = lisp_paredit.utils.index_to_point.call(null,index,editor.getText());
 return lisp_paredit.utils.__GT_Point.call(null,new cljs.core.Keyword(null,"row","row",-570139521).cljs$core$IFn$_invoke$arity$1(p),new cljs.core.Keyword(null,"column","column",2078222095).cljs$core$IFn$_invoke$arity$1(p));
 });
 lisp_paredit.utils.add_commands = (function lisp_paredit$utils$add_commands(commands,subs){
-var seq__17387 = cljs.core.seq.call(null,commands);
-var chunk__17388 = null;
-var count__17389 = (0);
-var i__17390 = (0);
+var seq__11245 = cljs.core.seq.call(null,commands);
+var chunk__11246 = null;
+var count__11247 = (0);
+var i__11248 = (0);
 while(true){
-if((i__17390 < count__17389)){
-var command = cljs.core._nth.call(null,chunk__17388,i__17390);
+if((i__11248 < count__11247)){
+var command = cljs.core._nth.call(null,chunk__11246,i__11248);
 lisp_paredit.utils.add_command.call(null,command,subs);
 
-var G__17391 = seq__17387;
-var G__17392 = chunk__17388;
-var G__17393 = count__17389;
-var G__17394 = (i__17390 + (1));
-seq__17387 = G__17391;
-chunk__17388 = G__17392;
-count__17389 = G__17393;
-i__17390 = G__17394;
+var G__11249 = seq__11245;
+var G__11250 = chunk__11246;
+var G__11251 = count__11247;
+var G__11252 = (i__11248 + (1));
+seq__11245 = G__11249;
+chunk__11246 = G__11250;
+count__11247 = G__11251;
+i__11248 = G__11252;
 continue;
 } else {
-var temp__4425__auto__ = cljs.core.seq.call(null,seq__17387);
+var temp__4425__auto__ = cljs.core.seq.call(null,seq__11245);
 if(temp__4425__auto__){
-var seq__17387__$1 = temp__4425__auto__;
-if(cljs.core.chunked_seq_QMARK_.call(null,seq__17387__$1)){
-var c__6945__auto__ = cljs.core.chunk_first.call(null,seq__17387__$1);
-var G__17395 = cljs.core.chunk_rest.call(null,seq__17387__$1);
-var G__17396 = c__6945__auto__;
-var G__17397 = cljs.core.count.call(null,c__6945__auto__);
-var G__17398 = (0);
-seq__17387 = G__17395;
-chunk__17388 = G__17396;
-count__17389 = G__17397;
-i__17390 = G__17398;
+var seq__11245__$1 = temp__4425__auto__;
+if(cljs.core.chunked_seq_QMARK_.call(null,seq__11245__$1)){
+var c__6945__auto__ = cljs.core.chunk_first.call(null,seq__11245__$1);
+var G__11253 = cljs.core.chunk_rest.call(null,seq__11245__$1);
+var G__11254 = c__6945__auto__;
+var G__11255 = cljs.core.count.call(null,c__6945__auto__);
+var G__11256 = (0);
+seq__11245 = G__11253;
+chunk__11246 = G__11254;
+count__11247 = G__11255;
+i__11248 = G__11256;
 continue;
 } else {
-var command = cljs.core.first.call(null,seq__17387__$1);
+var command = cljs.core.first.call(null,seq__11245__$1);
 lisp_paredit.utils.add_command.call(null,command,subs);
 
-var G__17399 = cljs.core.next.call(null,seq__17387__$1);
-var G__17400 = null;
-var G__17401 = (0);
-var G__17402 = (0);
-seq__17387 = G__17399;
-chunk__17388 = G__17400;
-count__17389 = G__17401;
-i__17390 = G__17402;
+var G__11257 = cljs.core.next.call(null,seq__11245__$1);
+var G__11258 = null;
+var G__11259 = (0);
+var G__11260 = (0);
+seq__11245 = G__11257;
+chunk__11246 = G__11258;
+count__11247 = G__11259;
+i__11248 = G__11260;
 continue;
 }
 } else {

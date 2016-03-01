@@ -31,9 +31,10 @@
     (let [newIndexes (or (aget result "newIndexes")
                          (js/Array.))
           _          (when (aget result "newIndex") (.push newIndexes (aget result "newIndex")))
-          first      (.slice newIndexes 0 1)
+          first      (first (.slice newIndexes 0 1))
           rest       (.slice newIndexes 1)
           point      (when first (utils/convert-index-to-point first editor))]
+      (println newIndexes first point)
       (when point (.setCursorBufferPosition editor point))
       (doall
         (map
@@ -43,7 +44,6 @@
          rest)))))
 
 (defn indent-range [range editor expand-if-empty?]
-  (println "indent-range" range editor)
   (let [src (.getText editor)
         ast (get-ast editor)
         start-index (utils/convert-point-to-index (aget range "start") editor)
@@ -53,12 +53,11 @@
                       [start-index end-index])]
     (when (and start end)
       (println ast src start end)
-      (let [result (paredit-editor/indent-range ast src start end)]
-        (println "changes" (aget result "changes"))
-        (println "newIndex" (aget result "newIndex"))
-        (println "newIndex" (utils/convert-index-to-point (aget result "newIndex") editor))
-        (.transact editor
-                   #(apply-changes result editor))))))
+      (let [result (paredit-editor/indent-range ast src start end)
+            changes (aget result "changes")]
+        (when (not-empty changes)
+          (.transact editor
+                     #(apply-changes (js-obj "changes" changes) editor)))))))
 
 (defn- apply-indent [changes editor]
   (let [rows-changed (map
@@ -176,7 +175,7 @@
         ranges (.getSelectedBufferRanges editor)]
     (doall
       (map
-       #(indent-range % editor false)
+       #(indent-range % editor true)
        ranges))))
 
 (defn delete-backwards []
@@ -195,8 +194,14 @@
   (edit (wrap-around-fn "{" "}")))
 
 (defn paste []
-  )
-
+  (let [editor (atom-workspace/get-active-text-editor)]
+    (.transact
+     editor
+     (fn []
+       (.pasteText editor (js-obj "autoIndent"         false
+                                  "autoIndentNewline"	 false
+                                  "autoDecreaseIndent" false))
+       (indent)))))
 
 (defn newline []
   (let [editor (atom-workspace/get-active-text-editor)]

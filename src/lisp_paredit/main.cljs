@@ -97,20 +97,23 @@
     ["lisp-paredit:down-sexp"           nav/down-sexp]
     ["lisp-paredit:expand-selection"    nav/expand-selection]
     ["lisp-paredit:indent"              edit/indent]
-    ["editor:newline"                   (utils/editor-command-event-wrapper edit/newline) lisp-selector]
     ["lisp-paredit:wrap-around-parens"  edit/wrap-around-parens]
     ["lisp-paredit:wrap-around-square"  edit/wrap-around-square]
     ["lisp-paredit:wrap-around-curly"   edit/wrap-around-curly]
-    ["lisp-paredit:toggle-strict"       toggle-strict "atom-workspace"]]
+    ["lisp-paredit:toggle-strict"       toggle-strict "atom-workspace"]
+    ["editor:newline"                   (utils/editor-command-event-wrapper edit/newline) lisp-selector]
+    ["core:paste"                       (utils/editor-command-event-wrapper edit/paste)   lisp-selector]]
    subs)
-  (.add subs (.observeTextEditors js/atom.workspace
-                                  (fn [editor]
-                                    (if (utils/supported-grammar? (.getGrammar editor))
-                                      (observe-editor editor subs)
-                                      (.onDidChangeGrammar editor
-                                                           (fn [grammar]
-                                                             (when (utils/supported-grammar? (.getGrammar editor))
-                                                               (observe-editor editor subs)))))))))
+  (.add subs
+        (.observeTextEditors
+         js/atom.workspace
+         (fn [editor]
+           (if (utils/supported-grammar? (.getGrammar editor))
+             (observe-editor editor subs)
+             (.onDidChangeGrammar editor
+                                  (fn [grammar]
+                                    (when (utils/supported-grammar? (.getGrammar editor))
+                                      (observe-editor editor subs)))))))))
 
 (deftype LispParedit [config]
   Object
