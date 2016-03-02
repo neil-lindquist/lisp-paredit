@@ -226,22 +226,6 @@ describe "LispParedit", ->
         expect(editor.getText()).toEqual("()")
         expect(editor.getCursorBufferPosition()).toEqual({row: 0, column: 2})
 
-
-      # TODO: work out how to send keypresses
-      # it "should not allow close brackets to be deleted when strict mode enabled", ->
-      #   atom.config.set('lisp-paredit.strict', true)
-      #   editor.setText("(foo)")
-      #   editor.setCursorBufferPosition([0, 5])
-      #   atom.commands.dispatch textEditorElement, "lisp-paredit:backspace"
-      #   expect(editor.getText()).toEqual("(foo)")
-      #
-      # it "should allow close brackets to be deleted when strict mode disabled", ->
-      #   atom.config.set('lisp-paredit.strict', false)
-      #   editor.setText("(foo)")
-      #   editor.setCursorBufferPosition([0, 5])
-      #   atom.commands.dispatch textEditorElement, "lisp-paredit:backspace"
-      #   expect(editor.getText()).toEqual("(foo")
-
 assertCursors = (actualCursors, expectedCursors) ->
   if expectedCursors.length > 0
     expect(actualCursors.length).toEqual(expectedCursors.length)
