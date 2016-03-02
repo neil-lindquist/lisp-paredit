@@ -41,7 +41,7 @@ describe "LispParedit", ->
           for [selectionStart, selectionEnd, selectedText] in selections[1..-1]
             editor.addSelectionForBufferRange([selectionStart, selectionEnd])
 
-        atom.commands.dispatch textEditorElement, "lisp-paredit:#{command}"
+        atom.commands.dispatch textEditorElement, command
 
         actualText = editor.getText()
         expect(actualText).toEqual(expectedText)
@@ -52,59 +52,59 @@ describe "LispParedit", ->
         actualSelections = editor.getSelections().filter (s) -> !s.isEmpty()
         assertSelections(actualSelections, expectedSelections)
 
-    testCommand "forward-sexp",         "|(a b) (c d)",         "(a b)| (c d)"
-    testCommand "forward-sexp",         "|(a\n b) (c d)",       "(a\n b)| (c d)"
-    testCommand "backward-sexp",        "(a b)| (c d)",         "|(a b) (c d)"
-    testCommand "backward-sexp",        "(a\n b)| (c d)",       "|(a\n b) (c d)"
+    testCommand "lisp-paredit:forward-sexp",         "|(a b) (c d)",         "(a b)| (c d)"
+    testCommand "lisp-paredit:forward-sexp",         "|(a\n b) (c d)",       "(a\n b)| (c d)"
+    testCommand "lisp-paredit:backward-sexp",        "(a b)| (c d)",         "|(a b) (c d)"
+    testCommand "lisp-paredit:backward-sexp",        "(a\n b)| (c d)",       "|(a\n b) (c d)"
 
-    testCommand "slurp-backwards",      "(a (|b) c)",           "((a |b) c)"
-    testCommand "slurp-backwards",      "(a (|b) c (|d))",      "((a |b) (c |d))"
-    testCommand "slurp-backwards",      "|(a (b) c (d))",       "|(a (b) c (d))"
-    testCommand "slurp-backwards",      "(a b) |(c d)",         "(a b) |(c d)"
+    testCommand "lisp-paredit:slurp-backwards",      "(a (|b) c)",           "((a |b) c)"
+    testCommand "lisp-paredit:slurp-backwards",      "(a (|b) c (|d))",      "((a |b) (c |d))"
+    testCommand "lisp-paredit:slurp-backwards",      "|(a (b) c (d))",       "|(a (b) c (d))"
+    testCommand "lisp-paredit:slurp-backwards",      "(a b) |(c d)",         "(a b) |(c d)"
 
-    testCommand "slurp-forwards",       "(a (|b) c)",           "(a (|b c))"
-    testCommand "slurp-forwards",       "|(a (b) c)",           "|(a (b) c)"
+    testCommand "lisp-paredit:slurp-forwards",       "(a (|b) c)",           "(a (|b c))"
+    testCommand "lisp-paredit:slurp-forwards",       "|(a (b) c)",           "|(a (b) c)"
 
-    testCommand "barf-backwards",       "((a |b) c)",           "(a (|b) c)"
-    testCommand "barf-backwards",       "|((a b) c)",           "((a b) c)"
-    testCommand "barf-backwards",       "(a b) |(c d)",         "(a b) |(c d)"
+    testCommand "lisp-paredit:barf-backwards",       "((a |b) c)",           "(a (|b) c)"
+    testCommand "lisp-paredit:barf-backwards",       "|((a b) c)",           "((a b) c)"
+    testCommand "lisp-paredit:barf-backwards",       "(a b) |(c d)",         "(a b) |(c d)"
 
-    testCommand "barf-forwards",        "((|a b) c)",           "((|a) b c)"
-    testCommand "barf-forwards",        "|((a b) c)",           "|((a b) c)"
+    testCommand "lisp-paredit:barf-forwards",        "((|a b) c)",           "((|a) b c)"
+    testCommand "lisp-paredit:barf-forwards",        "|((a b) c)",           "|((a b) c)"
 
-    testCommand "kill-sexp-forwards",   "((a| b) c)",           "((a|) c)"
-    testCommand "kill-sexp-backwards",  "((a |b) c)",           "((|b) c)"
+    testCommand "lisp-paredit:kill-sexp-forwards",   "((a| b) c)",           "((a|) c)"
+    testCommand "lisp-paredit:kill-sexp-backwards",  "((a |b) c)",           "((|b) c)"
 
-    testCommand "up-sexp",              "((a| b) c)",           "(|(a b) c)"
-    testCommand "down-sexp",            "(|(a b) c)",           "((|a b) c)"
+    testCommand "lisp-paredit:up-sexp",              "((a| b) c)",           "(|(a b) c)"
+    testCommand "lisp-paredit:down-sexp",            "(|(a b) c)",           "((|a b) c)"
 
-    testCommand "splice",               "(a |b c)",             "a |b c"
-    testCommand "splice-backwards",     "(a |b c)",             "|b c"
-    testCommand "splice-forwards",      "(a |b c)",             "a |"
+    testCommand "lisp-paredit:splice",               "(a |b c)",             "a |b c"
+    testCommand "lisp-paredit:splice-backwards",     "(a |b c)",             "|b c"
+    testCommand "lisp-paredit:splice-forwards",      "(a |b c)",             "a |"
 
-    testCommand "split",                "(a |b c)",             "(a )| (b c)"
+    testCommand "lisp-paredit:split",                "(a |b c)",             "(a )| (b c)"
 
-    testCommand "expand-selection",     "(a (b| c) d)",         "(a (<b> c) d)"
-    testCommand "expand-selection",     "(a (<b> c) d)",        "(a (<b c>) d)"
-    testCommand "expand-selection",     "(a (<b>\n c) d)",      "(a (<b\n c>) d)"
+    testCommand "lisp-paredit:expand-selection",     "(a (b| c) d)",         "(a (<b> c) d)"
+    testCommand "lisp-paredit:expand-selection",     "(a (<b> c) d)",        "(a (<b c>) d)"
+    testCommand "lisp-paredit:expand-selection",     "(a (<b>\n c) d)",      "(a (<b\n c>) d)"
 
-    testCommand "delete-backwards",     "(a b c|)",             "(a b |)"
-    testCommand "delete-backwards",     "(a| b| c|)",           "(| | |)"
-    testCommand "delete-backwards",     "(|)",                  "|"
-    testCommand "delete-backwards",     "(<{:a 1 :b 2}>)",      "(|)"
-    testCommand "delete-backwards",     "(<{:a 1\n :b 2}>)",    "(|)"
+    testCommand "core:backspace",                    "(a b c|)",             "(a b |)"
+    testCommand "core:backspace",                    "(a| b| c|)",           "(| | |)"
+    testCommand "core:backspace",                    "(|)",                  "|"
+    testCommand "core:backspace",                    "(<{:a 1 :b 2}>)",      "(|)"
+    testCommand "core:backspace",                    "(<{:a 1\n :b 2}>)",    "(|)"
 
-    testCommand "delete-forwards",      "(<{:a 1 :b 2}>)",      "(|)"
-    testCommand "delete-forwards",      "(<{:a 1\n :b 2}>)",    "(|)"
-    testCommand "delete-forwards",      "(a b |c)",             "(a b |)"
-    testCommand "delete-forwards",      "(|a |b |c)",           "(| | |)"
-    testCommand "delete-forwards",      "(|)",                  "|"
+    testCommand "core:delete",                       "(<{:a 1 :b 2}>)",      "(|)"
+    testCommand "core:delete",                       "(<{:a 1\n :b 2}>)",    "(|)"
+    testCommand "core:delete",                       "(a b |c)",             "(a b |)"
+    testCommand "core:delete",                       "(|a |b |c)",           "(| | |)"
+    testCommand "core:delete",                       "(|)",                  "|"
 
-    testCommand "newline",              "(abc def|)",           "(abc def\n     )"
+    testCommand "editor:newline",                    "(abc def|)",           "(abc def\n     )"
 
-    testCommand "wrap-around-parens",   "|a b",                 "(|a) b"
-    testCommand "wrap-around-square",   "|a b",                 "[|a] b"
-    testCommand "wrap-around-curly",    "|a b",                 "{|a} b"
+    testCommand "lisp-paredit:wrap-around-parens",   "|a b",                 "(|a) b"
+    testCommand "lisp-paredit:wrap-around-square",   "|a b",                 "[|a] b"
+    testCommand "lisp-paredit:wrap-around-curly",    "|a b",                 "{|a} b"
 
     it "should indent text", ->
       editor.setText("""
@@ -184,7 +184,7 @@ describe "LispParedit", ->
         editor.setCursorBufferPosition([0, 0])
         editor.insertText("(")
         expect(editor.getText()).toEqual("()foo")
-        expect(editor.getCursorBufferPosition()).toEqual([0, 1])
+        expect(editor.getCursorBufferPosition()).toEqual([0, 2])
 
       it "should not add close brackets when strict mode disabled", ->
         atom.config.set('lisp-paredit.strict', false)
@@ -205,8 +205,8 @@ describe "LispParedit", ->
         editor.setText("")
         editor.setCursorBufferPosition([0, 0])
 
-        atom.clipboard.write("(")
-        atom.commands.dispatch textEditorElement, "lisp-paredit:paste"
+        atom.clipboard.write("(abc")
+        atom.commands.dispatch textEditorElement, "core:paste"
         expect(editor.getText()).toEqual("")
 
       it "should allow valid paste input", ->
@@ -215,7 +215,7 @@ describe "LispParedit", ->
         editor.setCursorBufferPosition([0, 0])
 
         atom.clipboard.write("(foo bar)")
-        atom.commands.dispatch textEditorElement, "lisp-paredit:paste"
+        atom.commands.dispatch textEditorElement, "core:paste"
         expect(editor.getText()).toEqual("(foo bar)")
 
       it "should move cursor if close brace is entered", ->

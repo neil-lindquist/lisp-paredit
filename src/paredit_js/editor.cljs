@@ -9,7 +9,10 @@
   ((aget *paredit* "editor" "slurpSexp") ast src index (clj->js args)))
 
 (defn barf-sexp [ast src index args]
-  ((aget *paredit* "editor" "barfSexp") ast src index (clj->js args)))
+  (try
+    ((aget *paredit* "editor" "barfSexp") ast src index (clj->js args))
+    (catch js/Error e
+      (println "Error calling paredit.js"))))
 
 (defn kill-sexp [ast src index args]
   ((aget *paredit* "editor" "killSexp") ast src index (clj->js args)))

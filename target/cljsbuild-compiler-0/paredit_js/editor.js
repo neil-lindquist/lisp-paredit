@@ -9,8 +9,15 @@ paredit_js.editor.slurp_sexp = (function paredit_js$editor$slurp_sexp(ast,src,in
 return (paredit_js.editor._STAR_paredit_STAR_["editor"]["slurpSexp"]).call(null,ast,src,index,cljs.core.clj__GT_js.call(null,args));
 });
 paredit_js.editor.barf_sexp = (function paredit_js$editor$barf_sexp(ast,src,index,args){
-return (paredit_js.editor._STAR_paredit_STAR_["editor"]["barfSexp"]).call(null,ast,src,index,cljs.core.clj__GT_js.call(null,args));
-});
+try{return (paredit_js.editor._STAR_paredit_STAR_["editor"]["barfSexp"]).call(null,ast,src,index,cljs.core.clj__GT_js.call(null,args));
+}catch (e30865){if((e30865 instanceof Error)){
+var e = e30865;
+return cljs.core.println.call(null,"Error calling paredit.js");
+} else {
+throw e30865;
+
+}
+}});
 paredit_js.editor.kill_sexp = (function paredit_js$editor$kill_sexp(ast,src,index,args){
 return (paredit_js.editor._STAR_paredit_STAR_["editor"]["killSexp"]).call(null,ast,src,index,cljs.core.clj__GT_js.call(null,args));
 });
