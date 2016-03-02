@@ -50,9 +50,10 @@
         src        (.getText editor)
         selections (.getSelectedBufferRanges editor)
         new-src    (replace-text src new-text selections editor)
-        ast        (paredit/parse new-src)]
-    (when (not-empty (aget ast "errors"))
-      (.cancel event)
+        ast        (paredit/parse new-src)]    
+    (.cancel event)
+    (if (= 0 (count (aget ast "errors")))
+      (.mutateSelectedText editor (fn [selection] (.insertText selection new-text)))
       (when-not (move-cursor text editor)
         ;; only show error if we haven't moved the cursor
         (status-bar-view/invalid-input)))))
