@@ -34,7 +34,6 @@
           first      (first (.slice newIndexes 0 1))
           rest       (.slice newIndexes 1)
           point      (when first (utils/convert-index-to-point first editor))]
-      (println newIndexes first point)
       (when point (.setCursorBufferPosition editor point))
       (doall
         (map
@@ -52,7 +51,6 @@
                       (paredit-nav/sexp-range-expansion ast start-index end-index)
                       [start-index end-index])]
     (when (and start end)
-      (println ast src start end)
       (let [result (paredit-editor/indent-range ast src start end)
             changes (aget result "changes")]
         (when (not-empty changes)
@@ -74,76 +72,44 @@
   (fn [ast src index args]
     (paredit-editor/wrap-around ast src index start end args)))
 
-(defn- edit-selections [editor selections f args]
-  (doall
-    (map
-     (fn [selection]
-       (let [src (.getText editor)
-             ast (get-ast editor)
-             start-index (aget (.getBufferRange selection) "start")
-             end-index (aget (.getBufferRange selection) "end")
-             index (utils/convert-point-to-index start-index editor)
-             _ (goog-object/extend args (js-obj "endIdx" (utils/convert-point-to-index end-index editor)))
-             result (f ast src index args)]
-         (when-let [changes (and result
-                                 (aget result "changes"))]
-           (apply-changes (js-obj "changes" changes) editor)
-           (when (aget args "indent") (apply-indent changes editor)))
-         (when result (aget result "newIndex"))))
-     selections)))
-
-(defn- edit-cursors [editor cursors f args]
-  (doall
-    (map
-     (fn [cursor]
-       (let [args   (or args #js {})
-                   point  (.getBufferPosition cursor)
-                   index  (utils/convert-point-to-index point editor)
-                   src    (.getText editor)
-                   ast    (get-ast editor)
-                   row    (cond
-                            (and (aget args "backward")
-                                 (= 0 (aget point "column")))
-                            (dec (aget point "row"))
-
-                            (and (not (aget args "backward"))
-                                 (= (aget point "column")
-                                    (.lineLengthForRow js/editor.buffer (aget point "row"))))
-                            (aget point "row"))
-
-                   _      (goog-object/extend args (js-obj "count" (if row
-                                                                     (count (utils/line-ending-for-row row editor))
-                                                                     1)))
-
-                   result (f ast src index args)]
-               (when-let [changes (and result (aget result "changes"))]
-                 (apply-changes (js-obj "changes" changes) editor)
-                 (when (aget args "indent") (apply-indent changes editor)))
-               (when result (aget result "newIndex"))))
-     cursors)))
-
 (defn- edit
   ([f] (edit f {}))
   ([f argv]
-   (let [editor (atom-workspace/get-active-text-editor)
-         cursors (.getCursorsOrderedByBufferPosition editor)
-         selections (remove #(.isEmpty %) (.getSelections editor))
-         args (js-obj "indent" true)
-         _ (goog-object/extend args argv)]
-     (.transact editor
-                (fn []
-                  (let [new-indexes (remove nil?
-                                            (if (> (count selections) 0)
-                                              (edit-selections editor selections f args)
-                                              (edit-cursors editor cursors f args)))]
+   (let [editor      (atom-workspace/get-active-text-editor)
+         new-indexes (atom [])
+         changed?    (atom false)]
+     (.mutateSelectedText
+      editor
+      (fn [selection]
+        (let [ast         (get-ast editor)
+              src         (.getText editor)
+              range       (.getBufferRange selection)
+              start-index (utils/convert-point-to-index (aget range "start") editor)
+              end-index   (utils/convert-point-to-index (aget range "end") editor)
+              args        (if (.isEmpty selection)
+                            (js-obj "indent" true
+                                    "count"  1)
+                            (js-obj "indent" true
+                                    "endIdx" end-index))
+              _           (goog-object/extend args argv)
+              result      (f ast src start-index args)
+              changes     (when result (aget result "changes"))]
+          (when (> (count changes) 0)
+            (reset! changed? true)
+            (when (aget result "newIndex")
+              (swap! new-indexes conj (aget result "newIndex")))
+            (apply-changes (js-obj "changes" changes) editor)
+            (when (aget args "indent")
+              (apply-indent changes editor))))))
 
-                    (when (seq new-indexes)
-                      (apply-changes (js-obj "newIndexes" (clj->js new-indexes)) editor))))))))
+     (when (seq @new-indexes)
+       (apply-changes (js-obj "newIndexes" (clj->js @new-indexes)) editor))
+     @changed?)))
 
-(defn slurp-backwards  []
+(defn slurp-backwards []
   (edit paredit-editor/slurp-sexp (js-obj "backward" true)))
 
-(defn slurp-forwards  []
+(defn slurp-forwards []
   (edit paredit-editor/slurp-sexp (js-obj "backward" false)))
 
 (defn barf-backwards []
@@ -179,10 +145,16 @@
        ranges))))
 
 (defn delete-backwards []
-  (edit paredit-editor/delete (js-obj "backward" true "indent" false)))
+  (println "delete-backwards")
+  (let [res (edit paredit-editor/delete (js-obj "backward" true "indent" false))]
+    (println res)
+    (when-not res
+      (println "no changes")
+      (status-bar-view/invalid-input))))
 
 (defn delete-forwards []
-  (edit paredit-editor/delete (js-obj "backward" false "indent" false)))
+  (when-not (edit paredit-editor/delete (js-obj "backward" false "indent" false))
+    (status-bar-view/invalid-input)))
 
 (defn wrap-around-parens []
   (edit (wrap-around-fn "(" ")")))

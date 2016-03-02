@@ -1,2 +1,5 @@
-(ns lisp-paredit.commands.edit
-  (:refer-clojure :exclude [newline]))
+(defn abc []
+  123)
+
+(defn def []
+  456)

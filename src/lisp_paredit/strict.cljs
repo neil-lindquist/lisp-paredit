@@ -7,8 +7,16 @@
             [atomio.commands :as atom-commands]
             [paredit-js.core :as paredit]))
 
-(def opening-braces ["(" "{" "[" "<" "\""])
-(def closing-braces [")" "}" "]" ">" "\""])
+(def braces {"(" ")"
+             "{" "}"
+             "[" "]"
+             "<" ">"
+             "\"" "\""})
+(def opening-braces (set (keys braces)))
+(def closing-braces (set (vals braces)))
+
+(defn- closing-brace [opening-brace]
+  (get braces opening-brace))
 
 (defn- move-cursor [char editor]
   (when (= 1 (count char))
@@ -35,9 +43,13 @@
       (recur new-src text rest editor))))
 
 (defn- check-insert-text [text editor event]
-  (let [src        (.getText editor)
+  (let [new-text   (if (and (= 1 (count text))
+                            (some #{text} opening-braces))
+                     (str text (closing-brace text))
+                     text)
+        src        (.getText editor)
         selections (.getSelectedBufferRanges editor)
-        new-src    (replace-text src text selections editor)
+        new-src    (replace-text src new-text selections editor)
         ast        (paredit/parse new-src)]
     (when (not-empty (aget ast "errors"))
       (.cancel event)
@@ -61,8 +73,10 @@
 
 (defn- add-commands [subs]
   (utils/add-commands
-   [["core:backspace" (utils/editor-command-event-wrapper edit/delete-backwards) lisp-selector]
-    ["core:delete"    (utils/editor-command-event-wrapper edit/delete-forwards)  lisp-selector]]
+   [["core:backspace"              (utils/editor-command-event-wrapper edit/delete-backwards) lisp-selector]
+    ["core:delete"                 (utils/editor-command-event-wrapper edit/delete-forwards)  lisp-selector]
+    ; ["editor:toggle-line-comments" (utils/editor-command-event-wrapper edit/comment)          lisp-selector]
+    ]
    subs))
 
 (defn enable [strict-subs]
