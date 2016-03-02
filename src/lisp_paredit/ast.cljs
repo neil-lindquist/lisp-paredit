@@ -20,7 +20,8 @@
 
 (defn get-ast
   "Get the ast for the editor. Store in a map keyed by the file path
-   to avoid parsing the same source more than once."
+   to avoid parsing the same source more than once. Store the hashcodes to determine
+   if the file content has changed."
   [editor]
   (let [src               (.getText editor)
         path              (.getPath editor)
