@@ -1,5 +1,4 @@
 LispParedit = require '../lib/lisp-paredit'
-utils = require '../lib/utils'
 
 describe "LispParedit", ->
   [textEditorElement, editor] = []
@@ -265,7 +264,7 @@ assertSelections = (actualSelections, expectedSelections) ->
 parseText = (text) ->
   cursors = []
   while (cursor = text.indexOf("\|")) > -1
-    cursors.push utils.indexToPoint(cursor, text)
+    cursors.push indexToPoint(cursor, text)
     text = text.replace(/\|/, "")
 
   return [text, cursors, []] if cursors.length > 0
@@ -276,8 +275,17 @@ parseText = (text) ->
     if selectionStart >= 0 and selectionEnd >= 0
       text = text.replace(/</, "").replace(/>/, "")
       selectedText = text.substring(selectionStart, selectionEnd)
-      selections.push [utils.indexToPoint(selectionStart, text), utils.indexToPoint(selectionEnd, text), selectedText]
+      selections.push [indexToPoint(selectionStart, text), indexToPoint(selectionEnd, text), selectedText]
 
   return [text, [], selections] if selections.length > 0
 
   [text, [], []]
+
+indexToPoint = (index, src) ->
+  substr = src.substring(0, index)
+  row = (substr.match(/\n/g) || []).length
+  lineStart = substr.lastIndexOf("\n") + 1
+
+  column = index - lineStart
+
+  {row: row, column: column}
