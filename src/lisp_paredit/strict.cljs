@@ -10,7 +10,6 @@
 (def braces {"(" ")"
              "{" "}"
              "[" "]"
-             "<" ">"
              "\"" "\""})
 (def opening-braces (set (keys braces)))
 (def closing-braces (set (vals braces)))
@@ -50,7 +49,7 @@
         src        (.getText editor)
         selections (.getSelectedBufferRanges editor)
         new-src    (replace-text src new-text selections editor)
-        ast        (paredit/parse new-src)]    
+        ast        (paredit/parse new-src)]
     (.cancel event)
     (if (= 0 (count (aget ast "errors")))
       (.mutateSelectedText editor (fn [selection] (.insertText selection new-text)))
