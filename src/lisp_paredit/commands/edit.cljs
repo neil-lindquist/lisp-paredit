@@ -90,7 +90,8 @@
                             (js-obj "indent" true
                                     "count"  1)
                             (js-obj "indent" true
-                                    "endIdx" end-index))
+                                    "endIdx" end-index
+                                    "freeEdits" true))
               _           (goog-object/extend args argv)
               result      (f ast src start-index args)
               changes     (when result (aget result "changes"))]
@@ -145,11 +146,8 @@
        ranges))))
 
 (defn delete-backwards []
-  (println "delete-backwards")
   (let [res (edit paredit-editor/delete (js-obj "backward" true "indent" false))]
-    (println res)
     (when-not res
-      (println "no changes")
       (status-bar-view/invalid-input))))
 
 (defn delete-forwards []
