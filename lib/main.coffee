@@ -47,7 +47,7 @@ module.exports = LispParedit =
 
     utils.addCommands [["toggle", toggle, 'atom-workspace']], @persistentSubscriptions, @views
 
-    atom.config.observe 'lisp-paredit.enabled', (shouldEnable) =>
+    @persistentSubscriptions.add atom.config.observe 'lisp-paredit.enabled', (shouldEnable) =>
       if shouldEnable
         @subscriptions = new CompositeDisposable
         enableParedit(@subscriptions, @views)
@@ -58,14 +58,14 @@ module.exports = LispParedit =
         disableParedit(@subscriptions, @views)
         strict.disableStrictMode(@strictSubscriptions, @views)
 
-    atom.config.onDidChange 'lisp-paredit.strict', (event) =>
+    @persistentSubscriptions.add atom.config.onDidChange 'lisp-paredit.strict', (event) =>
       if event.newValue and atom.config.get 'lisp-paredit.enabled'
         @strictSubscriptions = new CompositeDisposable
         strict.enableStrictMode(@strictSubscriptions, @views)
       else
         strict.disableStrictMode(@strictSubscriptions, @views)
 
-    atom.config.onDidChange 'lisp-paredit.indentationForms', (event) =>
+    @persistentSubscriptions.add atom.config.onDidChange 'lisp-paredit.indentationForms', (event) =>
       configureParedit()
 
   deactivate: ->
@@ -120,7 +120,7 @@ enableParedit = (subs, views) ->
 observeEditor = (editor, subs, views) ->
   checkSyntax(editor, views)
   subs.add editor.onDidStopChanging ->
-    checkSyntax(editor, views)  
+    checkSyntax(editor, views)
 
 checkSyntax = (editor, views) ->
   path = editor.getPath()
