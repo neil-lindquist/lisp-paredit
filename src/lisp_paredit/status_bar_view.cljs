@@ -1,6 +1,10 @@
 (ns lisp-paredit.status-bar-view
   (:require [atomio.config :as atom-config]
-            [atomio.commands :as atom-commands]))
+            [atomio.commands :as atom-commands]
+            [atomio.tooltips :as atom-tooltips]
+            [atomio.core :as atom-core]))
+
+(def tooltip-subscriptions (atom nil))
 
 (defn create-web-component [classname tag callbacks attrs inner-html]
   (let [proto (.create js/Object js/HTMLDivElement.prototype)]
@@ -10,6 +14,11 @@
                                      (aset this "innerHTML" inner-html)
                                      (when (:created callbacks)
                                        ((:created callbacks) this)))))
+    (aset proto "detachedCallback" (fn []
+                                     (this-as
+                                      this
+                                      (when (:detached callbacks)
+                                        ((:detached callbacks) this)))))
     (doseq [[attr val] attrs]
       (aset proto (name attr) (clj->js val)))
     (aset js/window classname (.registerElement js/document
@@ -29,6 +38,10 @@
                  (.setAttribute node "strict" ""))
                (.addEventListener enabled-el "click" #(atom-commands/dispatch "lisp-paredit:toggle"))
                (.addEventListener strict-el "click" #(atom-commands/dispatch "lisp-paredit:toggle-strict"))
+               (.add @tooltip-subscriptions
+                     (atom-tooltips/add enabled-el, {:title "Toggle lisp-paredit"}))
+               (.add @tooltip-subscriptions
+                     (atom-tooltips/add strict-el, {:title "Toggle strict mode"}))
 
                (atom-config/on-did-change
                 "lisp-paredit.enabled"
@@ -38,7 +51,9 @@
                (atom-config/on-did-change
                 "lisp-paredit.strict"
                 (fn [event]
-                  (.setStrict node (aget event "newValue"))))))}
+                  (.setStrict node (aget event "newValue"))))))
+  :detached (fn [node]
+              (.dispose @tooltip-subscriptions))}
  {:invalidInput (fn []
                   (this-as
                    this
@@ -68,6 +83,7 @@
   <span class='strict-status'>strict</span>")
 
 (defn initialize [status-bar]
+  (reset! tooltip-subscriptions (atom-core/CompositeDisposable.))
   (let [node (.createElement js/document "lisp-paredit-status")]
     (.addRightTile status-bar (clj->js {:item node
                                         :priority 10}))))
