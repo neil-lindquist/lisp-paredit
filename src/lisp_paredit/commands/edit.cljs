@@ -87,11 +87,8 @@
               start-index (utils/convert-point-to-index (aget range "start") editor)
               end-index   (utils/convert-point-to-index (aget range "end") editor)
               args        (if (.isEmpty selection)
-                            (js-obj "indent" true
-                                    "count"  1)
-                            (js-obj "indent" true
-                                    "endIdx" end-index
-                                    "freeEdits" true))
+                            #js{}
+                            (js-obj "endIdx" end-index))
               _           (goog-object/extend args argv)
               result      (f ast src start-index args)
               changes     (when result (aget result "changes"))]
@@ -108,16 +105,20 @@
      @changed?)))
 
 (defn slurp-backwards []
-  (edit paredit-editor/slurp-sexp (js-obj "backward" true)))
+  (edit paredit-editor/slurp-sexp (js-obj "backward" true
+                                          "indent" true)))
 
 (defn slurp-forwards []
-  (edit paredit-editor/slurp-sexp (js-obj "backward" false)))
+  (edit paredit-editor/slurp-sexp (js-obj "backward" false
+                                          "indent" true)))
 
 (defn barf-backwards []
-  (edit paredit-editor/barf-sexp (js-obj "backward" true)))
+  (edit paredit-editor/barf-sexp (js-obj "backward" true
+                                         "indent" true)))
 
 (defn barf-forwards []
-  (edit paredit-editor/barf-sexp (js-obj "backward" false)))
+  (edit paredit-editor/barf-sexp (js-obj "backward" false
+                                         "indent" true)))
 
 (defn kill-sexp-forwards []
   (edit paredit-editor/kill-sexp (js-obj "backward" false)))
@@ -146,12 +147,14 @@
        ranges))))
 
 (defn delete-backwards []
-  (let [res (edit paredit-editor/delete (js-obj "backward" true "indent" false))]
+  (let [res (edit paredit-editor/delete (js-obj "backward" true
+                                                "indent" false))]
     (when-not res
       (status-bar-view/invalid-input))))
 
 (defn delete-forwards []
-  (when-not (edit paredit-editor/delete (js-obj "backward" false "indent" false))
+  (when-not (edit paredit-editor/delete (js-obj "backward" false
+                                                "indent" false))
     (status-bar-view/invalid-input)))
 
 (defn wrap-around-parens []
