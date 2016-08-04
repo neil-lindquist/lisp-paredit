@@ -4,3 +4,4 @@ node_modules
 out
 target
 lib/lisp-paredit.js
+.cljs_rhino_repl/*
