@@ -80,9 +80,9 @@
                      (utils/balance-brackets text))]
       (.mutateSelectedText editor (fn [selection] (.insertText selection new-text))))))
 
-(defn- observe-editor [editor subs]
+(defn- observe-editor [editor]
   (check-syntax editor)
-  (.add subs (.onDidStopChanging editor
+  (.add @subscriptions (.onDidStopChanging editor
                                  (fn []
                                    (check-syntax editor)))))
 
@@ -98,10 +98,10 @@
           (.push paredit-special-forms (js/RegExp. (nth match 1)))
           (.push paredit-special-forms special-form))))))
 
-(defn disable-paredit [subs]
-  (when subs (.dispose subs)))
+(defn disable-paredit []
+  (when @subscriptions (.dispose @subscriptions)))
 
-(defn enable-paredit [subs]
+(defn enable-paredit []
   (utils/add-commands
    [["lisp-paredit:slurp-backwards"     edit/slurp-backwards]
     ["lisp-paredit:slurp-forwards"      edit/slurp-forwards]
@@ -126,17 +126,17 @@
     ["core:delete"                      (utils/editor-command-event-wrapper edit/delete-forwards)  lisp-selector]
     ["editor:newline"                   (utils/editor-command-event-wrapper edit/newline) lisp-selector]
     ["core:paste"                       (utils/editor-command-event-wrapper edit/paste)   lisp-selector]]
-   subs)
-  (.add subs
+   @subscriptions)
+  (.add @subscriptions
         (.observeTextEditors
          js/atom.workspace
          (fn [editor]
            (if (utils/supported-grammar? (.getGrammar editor))
              (do
-               (observe-editor editor subs)
+               (observe-editor editor)
                (-> (atom-views/get-view editor)
                    (utils/add-class "paredit"))
-               (.add subs
+               (.add @subscriptions
                      (.onWillInsertText
                       editor
                       (fn [event]
@@ -145,7 +145,13 @@
              (.onDidChangeGrammar editor
                                   (fn [grammar]
                                     (when (utils/supported-grammar? (.getGrammar editor))
-                                      (observe-editor editor subs)))))))))
+                                      (observe-editor editor))))))))
+  (.add @persistent-subscriptions
+        (.onDidChangeActivePaneItem
+         js/atom.workspace
+         (fn [pane]
+           (when-let [view (atom-views/get-view pane)]
+             (status-bar-view/set-active (utils/has-class? view "paredit")))))))
 
 (deftype LispParedit [config]
   Object
@@ -162,10 +168,9 @@
        (if should-enable
          (do
            (reset! subscriptions (atom-core/CompositeDisposable.))
-           (enable-paredit @subscriptions))
+           (enable-paredit))
          (do
-           (disable-paredit @subscriptions)
-           ))))
+           (disable-paredit)))))
 
    (atom-config/on-did-change
     "lisp-paredit.indentationForms"

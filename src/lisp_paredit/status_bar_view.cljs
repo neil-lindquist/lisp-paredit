@@ -2,7 +2,8 @@
   (:require [atomio.config :as atom-config]
             [atomio.commands :as atom-commands]
             [atomio.tooltips :as atom-tooltips]
-            [atomio.core :as atom-core]))
+            [atomio.core :as atom-core]
+            [lisp-paredit.utils :as utils]))
 
 (def tooltip-subscriptions (atom nil))
 
@@ -25,6 +26,9 @@
                                                 (name tag)
                                                 (clj->js {:prototype proto})))))
 
+(defn find-status-bar []
+  (.querySelector js/document "lisp-paredit-status"))
+
 (create-web-component
  "LispPareditStatus"
  :lisp-paredit-status
@@ -37,7 +41,10 @@
                (.addEventListener enabled-el "click" #(atom-commands/dispatch "lisp-paredit:toggle"))
 
                (.add @tooltip-subscriptions
-                     (atom-tooltips/add enabled-el, {:title "Toggle lisp-paredit"}))
+                     (atom-tooltips/add enabled-el, {:title (fn []
+                                                              (if (atom-config/get "lisp-paredit.enabled")
+                                                                "Lisp Paredit is enabled. Click to disable."
+                                                                "Lisp Paredit is disabled. Click to enable."))}))
 
                (atom-config/on-did-change
                 "lisp-paredit.enabled"
@@ -63,7 +70,13 @@
   :clearError  (fn []
                  (this-as
                   node
-                  (.removeAttribute node "syntax-error")))}
+                  (.removeAttribute node "syntax-error")))
+  :setActive   (fn [val]
+                 (this-as
+                  node
+                  (if val
+                    (utils/remove-class node "hidden")
+                    (utils/add-class node "hidden"))))}
  "<span class='enabled-status'>(λ)</span>")
 
 (defn initialize [status-bar]
@@ -71,9 +84,6 @@
   (let [node (.createElement js/document "lisp-paredit-status")]
     (.addRightTile status-bar (clj->js {:item node
                                         :priority 10}))))
-
-(defn find-status-bar []
-  (.querySelector js/document "lisp-paredit-status"))
 
 (defn invalid-input []
   (when-let [status-bar (find-status-bar)]
@@ -90,3 +100,7 @@
 (defn clear-error []
   (when-let [status-bar (find-status-bar)]
     (.clearError status-bar)))
+
+(defn set-active [val]
+  (when-let [status-bar (find-status-bar)]
+    (.setActive status-bar val)))

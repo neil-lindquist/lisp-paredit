@@ -36,6 +36,10 @@
   (boolean
    (some #{(lower-case (aget grammar "name"))} (grammars))))
 
+(defn has-class? [view class]
+  (let [regex (js/RegExp. class "g")]
+    (.match (aget view "className") regex)))
+
 (defn remove-class [view class]
   (let [regex (js/RegExp. class "g")]
     (aset view "className" (.replace (aget view "className") regex ""))))
