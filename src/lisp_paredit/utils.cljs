@@ -3,15 +3,14 @@
             [atomio.core :as atom-core]
             [atomio.views :as atom-views]
             [atomio.workspace :as atom-workspace]
-            [atomio.commands :as atom-commands])
+            [atomio.commands :as atom-commands]
+            [clojure.string :refer [lower-case join]])
   (:refer-clojure :exclude [->Range]))
 
-(def grammars #{"Clojure" "Lisp" "Scheme" "Newlisp"})
+(def lisp-selector "atom-text-editor.paredit")
 
-(def lisp-selector "atom-text-editor[data-grammar~=\"clojure\"],
-                    atom-text-editor[data-grammar~=\"lisp\"],
-                    atom-text-editor[data-grammar~=\"newlisp\"],
-                    atom-text-editor[data-grammar~=\"scheme\"]")
+(defn grammars []
+  (map lower-case (atom-config/get "lisp-paredit.grammars")))
 
 (defn- get-default-line-ending []
   (condp = (atom-config/get "line-ending-selector.defaultLineEnding")
@@ -35,14 +34,15 @@
 
 (defn supported-grammar? [grammar]
   (boolean
-   (some #{(aget grammar "name")} grammars)))
-
-(defn add-class [view class]
-  (aset view "className" (str (aget view "className") " " class)))
+   (some #{(lower-case (aget grammar "name"))} (grammars))))
 
 (defn remove-class [view class]
   (let [regex (js/RegExp. class "g")]
     (aset view "className" (.replace (aget view "className") regex ""))))
+
+(defn add-class [view class]
+  (remove-class view class)
+  (aset view "className" (str (aget view "className") " " class)))
 
 (defn ->Point [row col]
   (atom-core/Point. row col))
@@ -83,3 +83,63 @@
         (.stopImmediatePropagation event)
         (.stopPropagation event)
         (wrapped-fn)))))
+
+
+(def braces {"(" ")"
+             "{" "}"
+             "[" "]"
+             ;  "\"" "\""
+             })
+(def opening-braces (set (keys braces)))
+(def closing-braces (set (vals braces)))
+
+(defn closing-brace [opening-brace]
+  (get braces opening-brace))
+
+(defn balance-brackets [text]
+  (loop [chars text
+         prev-char nil
+         brackets []
+         new-text ""
+         in-string? false]
+    (if (seq chars)
+      (let [[char & rest] chars]
+        (cond
+          (and (= char \")
+               (not= prev-char \\))
+          (recur rest char brackets (str new-text char) (not in-string?))
+
+          in-string?
+          (recur rest char brackets (str new-text char) true)
+
+          (some #{char} opening-braces)
+          (recur rest char (conj brackets char) (str new-text char) false)
+
+          (some #{char} closing-braces)
+          (cond
+            (= char (closing-brace (last brackets)))
+            (recur rest char (vec (drop-last brackets)) (str new-text char) false)
+
+            (empty? brackets)
+            (recur rest char brackets new-text false)
+
+            :else
+            (recur (apply vector char rest) char (vec (drop-last brackets)) (str new-text (closing-brace (last brackets))) false))
+
+          :else
+          (recur rest char brackets (str new-text char) false)))
+
+      (if (seq brackets)
+        (str new-text (join (map closing-brace brackets)))
+        new-text))))
+
+(defn replace-text [src text ranges editor]
+  (let [[range & rest] ranges
+        start (convert-point-to-index (aget range "start") editor)
+        end   (convert-point-to-index (aget range "end") editor)
+        new-src (str (.slice src 0 start)
+                     text
+                     (.slice src end))]
+    (if (empty? rest)
+      new-src
+      (recur new-src text rest editor))))

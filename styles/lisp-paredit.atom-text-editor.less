@@ -1,5 +1,5 @@
 @import "ui-variables";
 
-atom-text-editor::shadow .lisp-syntax-error .region {
+atom-text-editor:not(.proto-repl-repl)::shadow .lisp-syntax-error .region {
   background-color: fade(@background-color-error, 50%) !important;
 }

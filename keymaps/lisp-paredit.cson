@@ -1,8 +1,4 @@
-'atom-text-editor[data-grammar~="clojure"],
- atom-text-editor[data-grammar~="lisp"],
- atom-text-editor[data-grammar~="newlisp"],
- atom-text-editor[data-grammar~="racket"],
- atom-text-editor[data-grammar~="scheme"]':
+'atom-text-editor.paredit':
   'ctrl-alt-,':         'lisp-paredit:barf-forwards'
   'ctrl-alt-.':         'lisp-paredit:slurp-forwards'
   'ctrl-alt-<':         'lisp-paredit:slurp-backwards'
@@ -10,9 +6,6 @@
 
   'cmd-delete':         'lisp-paredit:kill-sexp-forwards'
   'cmd-backspace':      'lisp-paredit:kill-sexp-backwards'
-
-  # 'alt-delete':         'lisp-paredit:soft-delete-forwards'
-  # 'alt-backspace':      'lisp-paredit:soft-delete-backwards'
 
   'ctrl-alt-i':         'lisp-paredit:indent'
 

@@ -42,16 +42,13 @@
                 (.addCursorAtBufferPosition editor)))
          rest)))))
 
-(defn indent-range [range editor expand-if-empty?]
+(defn indent-range [range editor]
   (let [src (.getText editor)
         ast (get-ast editor)
         start-index (utils/convert-point-to-index (aget range "start") editor)
-        end-index (utils/convert-point-to-index (aget range "end") editor)
-        [start end] (if (and (.isEmpty range) expand-if-empty?)
-                      (paredit-nav/sexp-range-expansion ast start-index end-index)
-                      [start-index end-index])]
-    (when (and start end)
-      (let [result (paredit-editor/indent-range ast src start end)
+        end-index (utils/convert-point-to-index (aget range "end") editor)]
+    (when (and start-index end-index)
+      (let [result (paredit-editor/indent-range ast src start-index end-index)
             changes (aget result "changes")]
         (when (not-empty changes)
           (.transact editor
@@ -66,7 +63,7 @@
                       changes)
         start (->Point (apply min rows-changed) 0)
         end   (->Point (apply max rows-changed) 0)]
-    (indent-range (atom-core/Range. start end) editor false)))
+    (indent-range (atom-core/Range. start end) editor)))
 
 (defn- wrap-around-fn [start end]
   (fn [ast src index args]
@@ -143,19 +140,22 @@
         ranges (.getSelectedBufferRanges editor)]
     (doall
       (map
-       #(indent-range % editor true)
+       #(indent-range % editor)
        ranges))))
 
 (defn delete-backwards []
   (let [res (edit paredit-editor/delete (js-obj "backward" true
-                                                "indent" false))]
+                                                "indent" false))
+        editor (atom-workspace/get-active-text-editor)]
     (when-not res
-      (status-bar-view/invalid-input))))
+      (.moveLeft editor))))
 
 (defn delete-forwards []
-  (when-not (edit paredit-editor/delete (js-obj "backward" false
+  (let [res (edit paredit-editor/delete (js-obj "backward" false
                                                 "indent" false))
-    (status-bar-view/invalid-input)))
+        editor (atom-workspace/get-active-text-editor)]
+    (when-not res
+      (.moveRight editor))))
 
 (defn wrap-around-parens []
   (edit (wrap-around-fn "(" ")")))
@@ -167,14 +167,21 @@
   (edit (wrap-around-fn "{" "}")))
 
 (defn paste []
-  (let [editor (atom-workspace/get-active-text-editor)]
+  (let [editor (atom-workspace/get-active-text-editor)
+        start-ranges (map #(aget % "start") (.getSelectedBufferRanges editor))]
     (.transact
      editor
      (fn []
        (.pasteText editor (js-obj "autoIndent"         false
                                   "autoIndentNewline"	 false
                                   "autoDecreaseIndent" false))
-       (indent)))))
+       (let [end-ranges (map #(aget % "end") (.getSelectedBufferRanges editor))
+             ranges (map
+                     #(atom-core/Range. (first %) (last %))
+                     (->> (interleave start-ranges end-ranges)
+                          (partition 2)))]
+         (doall
+           (map #(indent-range % editor) ranges)))))))
 
 (defn newline []
   (let [editor (atom-workspace/get-active-text-editor)]

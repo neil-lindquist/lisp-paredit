@@ -2,7 +2,6 @@
   (:require [lisp-paredit.utils :refer [lisp-selector] :as utils]
             [lisp-paredit.status-bar-view :as status-bar-view]
             [lisp-paredit.markers :as markers]
-            [lisp-paredit.strict :as strict]
             [lisp-paredit.commands.edit :as edit]
             [lisp-paredit.commands.navigate :as nav]
             [lisp-paredit.ast :as ast]
@@ -10,6 +9,7 @@
             [paredit-js.core :as paredit]
             [atomio.config :as atom-config]
             [atomio.commands :as atom-commands]
+            [atomio.views :as atom-views]
             [atomio.workspace :as atom-workspace]
             [atomio.core :as atom-core]))
 
@@ -19,17 +19,21 @@
 
 (def subscriptions (atom nil))
 (def persistent-subscriptions (atom nil))
-(def strict-subscriptions (atom nil))
 
 (def config
   {:enabled {:type "boolean"
              :default true
              :description "When enabled the paredit commands are bound to editors that have Lisp grammars"
              :order 1}
-   :strict {:type "boolean"
-            :default true
-            :description "Strict mode disallows the removal of single brackets, instead encouraging the user to use the paredit commands to modify s-expressions"
-            :order 2}
+   :grammars {:type "array"
+              :default ["Clojure"
+                        "Lisp"
+                        "NewLisp"
+                        "Racket"
+                        "Scheme"]
+              :description "A list of grammars to enable lisp-paredit for"
+              :order 2
+              :items {:type "string"}}
    :indentationForms {:type "array"
                       :default ["&", "monitor-exit", "/^case/", "try", "/^reify/", "finally", "/^(.*-)?loop/",
                                 "/^let/", "/^import/", "new", "/^deftype/", "/^let/", "fn", "recur", "/^set.*!$/",
@@ -45,11 +49,9 @@
 (defn toggle []
   (atom-config/set "lisp-paredit.enabled", (not (atom-config/get "lisp-paredit.enabled"))))
 
-(defn toggle-strict []
-  (atom-config/set "lisp-paredit.strict", (not (atom-config/get "lisp-paredit.strict"))))
-
 (defn check-syntax [editor]
-  (let [errors (aget (ast/get-ast editor) "errors")]
+  (let [path (.getPath editor)
+        errors (aget (ast/get-ast editor) "errors")]
     (if (first errors)
       (do
         (markers/show-errors editor errors)
@@ -57,6 +59,26 @@
       (do
         (markers/clear-errors editor)
         (status-bar-view/clear-error)))))
+
+(defn- check-inserted-text [text editor event]
+  (.cancel event)
+  (if-let [closing-brace (utils/closing-brace text)]
+    (.transact
+     editor
+     (fn []
+       (.mutateSelectedText editor
+                            (fn [selection]
+                              (.insertText selection (str text closing-brace " "))))
+       (.moveLeft editor 2)))
+    (let [src        (.getText editor)
+          selections (.getSelectedBufferRanges editor)
+          new-src    (utils/replace-text src text selections editor)
+          ast        (paredit/parse new-src)
+
+          new-text (if (= 0 (count (aget ast "errors")))
+                     text
+                     (utils/balance-brackets text))]
+      (.mutateSelectedText editor (fn [selection] (.insertText selection new-text))))))
 
 (defn- observe-editor [editor subs]
   (check-syntax editor)
@@ -100,7 +122,8 @@
     ["lisp-paredit:wrap-around-parens"  edit/wrap-around-parens]
     ["lisp-paredit:wrap-around-square"  edit/wrap-around-square]
     ["lisp-paredit:wrap-around-curly"   edit/wrap-around-curly]
-    ["lisp-paredit:toggle-strict"       toggle-strict "atom-workspace"]
+    ["core:backspace"                   (utils/editor-command-event-wrapper edit/delete-backwards) lisp-selector]
+    ["core:delete"                      (utils/editor-command-event-wrapper edit/delete-forwards)  lisp-selector]
     ["editor:newline"                   (utils/editor-command-event-wrapper edit/newline) lisp-selector]
     ["core:paste"                       (utils/editor-command-event-wrapper edit/paste)   lisp-selector]]
    subs)
@@ -109,7 +132,16 @@
          js/atom.workspace
          (fn [editor]
            (if (utils/supported-grammar? (.getGrammar editor))
-             (observe-editor editor subs)
+             (do
+               (observe-editor editor subs)
+               (-> (atom-views/get-view editor)
+                   (utils/add-class "paredit"))
+               (.add subs
+                     (.onWillInsertText
+                      editor
+                      (fn [event]
+                        (let [text (aget event "text")]
+                          (check-inserted-text text editor event))))))
              (.onDidChangeGrammar editor
                                   (fn [grammar]
                                     (when (utils/supported-grammar? (.getGrammar editor))
@@ -130,23 +162,10 @@
        (if should-enable
          (do
            (reset! subscriptions (atom-core/CompositeDisposable.))
-           (enable-paredit @subscriptions)
-           (when (atom-config/get "lisp-paredit.strict")
-             (reset! strict-subscriptions (atom-core/CompositeDisposable.))
-             (strict/enable @strict-subscriptions)))
+           (enable-paredit @subscriptions))
          (do
            (disable-paredit @subscriptions)
-           (strict/disable @strict-subscriptions)))))
-
-   (atom-config/on-did-change
-    "lisp-paredit.strict"
-    (fn [event]
-      (if (and (aget event "newValue")
-               (atom-config/get "lisp-paredit.enabled"))
-        (do
-          (reset! strict-subscriptions (atom-core/CompositeDisposable.))
-          (strict/enable @strict-subscriptions))
-        (strict/disable @strict-subscriptions))))
+           ))))
 
    (atom-config/on-did-change
     "lisp-paredit.indentationForms"
@@ -158,8 +177,6 @@
       (.dispose @persistent-subscriptions))
     (when @subscriptions
       (.dispose @subscriptions))
-    (when @strict-subscriptions
-      (.dispose @strict-subscriptions))
     (markers/detach)
      (status-bar-view/detach))
 

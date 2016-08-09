@@ -29,29 +29,20 @@
  "LispPareditStatus"
  :lisp-paredit-status
  {:created (fn [node]
-             (let [enabled-el (.querySelector node ".enabled-status")
-                   strict-el (.querySelector node ".strict-status")]
+             (let [enabled-el (.querySelector node ".enabled-status")]
                (.add (aget node "classList") "inline-block")
                (when (atom-config/get "lisp-paredit.enabled")
                  (.setAttribute node "enabled" ""))
-               (when (atom-config/get "lisp-paredit.strict")
-                 (.setAttribute node "strict" ""))
+
                (.addEventListener enabled-el "click" #(atom-commands/dispatch "lisp-paredit:toggle"))
-               (.addEventListener strict-el "click" #(atom-commands/dispatch "lisp-paredit:toggle-strict"))
+
                (.add @tooltip-subscriptions
                      (atom-tooltips/add enabled-el, {:title "Toggle lisp-paredit"}))
-               (.add @tooltip-subscriptions
-                     (atom-tooltips/add strict-el, {:title "Toggle strict mode"}))
 
                (atom-config/on-did-change
                 "lisp-paredit.enabled"
                 (fn [event]
-                  (.setEnabled node (aget event "newValue"))))
-
-               (atom-config/on-did-change
-                "lisp-paredit.strict"
-                (fn [event]
-                  (.setStrict node (aget event "newValue"))))))
+                  (.setEnabled node (aget event "newValue"))))))
   :detached (fn [node]
               (.dispose @tooltip-subscriptions))}
  {:invalidInput (fn []
@@ -65,12 +56,6 @@
                  (if val
                    (.setAttribute node "enabled" "")
                    (.removeAttribute node "enabled"))))
-  :setStrict (fn [val]
-               (this-as
-                node
-                (if val
-                  (.setAttribute node "strict" "")
-                  (.removeAttribute node "strict"))))
   :syntaxError (fn []
                  (this-as
                   node
@@ -79,8 +64,7 @@
                  (this-as
                   node
                   (.removeAttribute node "syntax-error")))}
- "<span class='enabled-status'>(λ)</span>
-  <span class='strict-status'>strict</span>")
+ "<span class='enabled-status'>(λ)</span>")
 
 (defn initialize [status-bar]
   (reset! tooltip-subscriptions (atom-core/CompositeDisposable.))

@@ -105,17 +105,21 @@ describe "LispParedit", ->
     testCommand "lisp-paredit:wrap-around-square",   "|a b",                 "[|a] b"
     testCommand "lisp-paredit:wrap-around-curly",    "|a b",                 "{|a} b"
 
+    # testCommand "lisp-paredit:wrap-around-curly",    "|",                 "()"
+
+
+
     it "should indent text", ->
       editor.setText("""
 
       (defn foo
-      [bar]
-      {:baz boo
+        [bar]
+        {:baz boo
               :plop poo})
 
       """)
 
-      editor.setCursorBufferPosition([1, 0])
+      editor.setCursorBufferPosition([4, 0])
 
       atom.commands.dispatch textEditorElement, "lisp-paredit:indent"
 
@@ -128,7 +132,7 @@ describe "LispParedit", ->
 
       """)
 
-      expect(editor.getCursorBufferPosition()).toEqual([1, 0])
+      expect(editor.getCursorBufferPosition()).toEqual([4, 0])
 
     it "should indent after barf", ->
       editor.setText("""
@@ -164,67 +168,136 @@ describe "LispParedit", ->
        (bar))
       """)
 
-    describe "strict mode", ->
-      it "should not allow close brackets to be inserted when strict mode enabled", ->
-        atom.config.set('lisp-paredit.strict', true)
+    describe "overridden commands", ->
+      it "should not allow close brackets to be inserted when unmatched", ->
         editor.setText("")
         editor.insertText(")")
         expect(editor.getText()).toEqual("")
 
-      it "should allow close brackets to be inserted when strict mode disabled", ->
-        atom.config.set('lisp-paredit.strict', false)
-        editor.setText("")
-        editor.insertText(")")
-        expect(editor.getText()).toEqual(")")
-
-      it "should ensure close brackets are inserted when strict mode enabled", ->
-        atom.config.set('lisp-paredit.strict', true)
+      it "should ensure close brackets are inserted", ->
         editor.setText("foo")
         editor.setCursorBufferPosition([0, 0])
         editor.insertText("(")
-        expect(editor.getText()).toEqual("()foo")
-        expect(editor.getCursorBufferPosition()).toEqual([0, 2])
-
-      it "should not add close brackets when strict mode disabled", ->
-        atom.config.set('lisp-paredit.strict', false)
-        editor.setText("foo")
-        editor.setCursorBufferPosition([0, 0])
-        editor.insertText("(")
-        expect(editor.getText()).toEqual("(foo")
+        expect(editor.getText()).toEqual("() foo")
         expect(editor.getCursorBufferPosition()).toEqual([0, 1])
 
       it "should allow matching brackets to be inserted", ->
-        atom.config.set('lisp-paredit.strict', true)
         editor.setText("")
         editor.insertText("()")
         expect(editor.getText()).toEqual("()")
+        expect(editor.getCursorBufferPosition()).toEqual([0, 2])
 
-      it "should disallow invalid paste input", ->
-        atom.config.set('lisp-paredit.strict', true)
+      it "should indent after paste", ->
         editor.setText("")
         editor.setCursorBufferPosition([0, 0])
 
-        atom.clipboard.write("(abc")
+        atom.clipboard.write("""
+        (defn foo []
+        bar)""")
         atom.commands.dispatch textEditorElement, "core:paste"
-        expect(editor.getText()).toEqual("")
+        expect(editor.getText()).toEqual("""
+        (defn foo []
+          bar)""")
 
-      it "should allow valid paste input", ->
-        atom.config.set('lisp-paredit.strict', true)
+      it "should insert matching close brackets after paste", ->
         editor.setText("")
         editor.setCursorBufferPosition([0, 0])
 
-        atom.clipboard.write("(foo bar)")
+        atom.clipboard.write("""
+        (defn a [v]
+          (fn [e] (foo abc))""")
         atom.commands.dispatch textEditorElement, "core:paste"
-        expect(editor.getText()).toEqual("(foo bar)")
+        expect(editor.getText()).toEqual("""
+        (defn a [v]
+          (fn [e] (foo abc)))""")
+
+        console.log editor.getText()
+
+      it "should insert valid pasted text unmodified", ->
+        editor.setText("")
+        editor.setCursorBufferPosition([0, 0])
+
+        atom.clipboard.write("""
+        (defn- replace-text [src text ranges editor]
+          (let [[range & rest] ranges
+                start (utils/convert-point-to-index (aget range "start") editor)
+                end   (utils/convert-point-to-index (aget range "end") editor)
+                new-src (str (.slice src 0 start)
+                             text
+                             (.slice src end))]
+            (if (empty? rest)
+              new-src
+              (recur new-src text rest editor))))""")
+        atom.commands.dispatch textEditorElement, "core:paste"
+        expect(editor.getText()).toEqual("""
+        (defn- replace-text [src text ranges editor]
+          (let [[range & rest] ranges
+                start (utils/convert-point-to-index (aget range "start") editor)
+                end   (utils/convert-point-to-index (aget range "end") editor)
+                new-src (str (.slice src 0 start)
+                             text
+                             (.slice src end))]
+            (if (empty? rest)
+              new-src
+              (recur new-src text rest editor))))""")
+
+      it "should allow mismatched brackets in strings", ->
+        editor.setText("(def foo \"ab xy\")")
+        editor.setCursorBufferPosition([0, 12])
+
+        atom.clipboard.write("(((")
+        atom.commands.dispatch textEditorElement, "core:paste"
+        expect(editor.getText()).toEqual("(def foo \"ab((( xy\")")
+
+      it "should allow mismatched brackets in comments", ->
+        editor.setText("""
+        (defn foo []
+          (do-stuff) ; this requires a comment
+          (more-stuff))""")
+        editor.setCursorBufferPosition([1, 38])
+
+        atom.clipboard.write("([{")
+        atom.commands.dispatch textEditorElement, "core:paste"
+        expect(editor.getText()).toEqual("""
+        (defn foo []
+          (do-stuff) ; this requires a comment([{
+          (more-stuff))""")
+
+      it "should remove spurious close brackets after paste", ->
+        editor.setText("")
+        editor.setCursorBufferPosition([0, 0])
+
+        atom.clipboard.write("""
+        (defn foo []
+        bar))""")
+        atom.commands.dispatch textEditorElement, "core:paste"
+        expect(editor.getText()).toEqual("""
+        (defn foo []
+          bar)""")
 
       it "should move cursor if close brace is entered", ->
-        atom.config.set('lisp-paredit.strict', true)
         editor.setText("()")
         editor.setCursorBufferPosition([0, 1])
 
         editor.insertText(")")
         expect(editor.getText()).toEqual("()")
-        expect(editor.getCursorBufferPosition()).toEqual({row: 0, column: 2})
+        expect(editor.getCursorBufferPosition()).toEqual({row: 0, column: 1})
+
+      it "should move cursor if trying to delete sexp with content", ->
+        editor.setText("(foo bar baz)")
+        editor.setCursorBufferPosition([0, 0])
+
+        atom.commands.dispatch textEditorElement, "core:delete"
+        expect(editor.getText()).toEqual("(foo bar baz)")
+        expect(editor.getCursorBufferPosition()).toEqual({row: 0, column: 1})
+
+      it "should move cursor if trying to delete backwards sexp with content", ->
+        editor.setText("(foo bar baz)")
+        editor.setCursorBufferPosition([0, 13])
+
+        atom.commands.dispatch textEditorElement, "core:backspace"
+        expect(editor.getText()).toEqual("(foo bar baz)")
+        expect(editor.getCursorBufferPosition()).toEqual({row: 0, column: 12})
 
 assertCursors = (actualCursors, expectedCursors) ->
   if expectedCursors.length > 0

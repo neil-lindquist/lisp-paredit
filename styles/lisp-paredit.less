@@ -8,20 +8,12 @@ lisp-paredit-status > .enabled-status {
   font-size: 1.5em;
   cursor: pointer;
 }
-lisp-paredit-status > .strict-status {
-  vertical-align: top;
-  cursor: pointer;
-}
 
-lisp-paredit-status > .enabled-status:hover,
-lisp-paredit-status > .strict-status:hover {
+lisp-paredit-status > .enabled-status:hover {
   text-decoration: underline;
 }
 
 lisp-paredit-status[enabled] > .enabled-status {
-  color: @text-color-success;
-}
-lisp-paredit-status[enabled][strict] > .strict-status {
   color: @text-color-success;
 }
 lisp-paredit-status[syntax-error] > .enabled-status {
