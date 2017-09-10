@@ -2,6 +2,8 @@
 utils = require "./utils"
 paredit = require "paredit.js"
 
+expandState = {}
+
 module.exports =
   forwardSexp: ->
     navigate(paredit.navigator.forwardSexp)
@@ -24,7 +26,16 @@ module.exports =
       [start, end] = res
       newSelection = new Range(utils.convertIndexToPoint(start, editor), utils.convertIndexToPoint(end, editor))
       editor.setSelectedBufferRange(newSelection)
+      expandState = {range: newSelection, prev: expandState}
+      console.log "PREV: ", !!Object.keys(expandState.prev).length
 
+  contractSelection: ->
+    if Object.keys(expandState.prev).length
+      expandState = expandState.prev
+      editor = atom.workspace.getActiveTextEditor()
+      editor.setSelectedBufferRange(expandState.range)
+      console.log "PREV: ", !!Object.keys(expandState.prev).length
+      
 navigate = (fn) ->
   editor = atom.workspace.getActiveTextEditor()
   ast = paredit.parse(editor.getText())
