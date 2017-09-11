@@ -21,8 +21,8 @@ module.exports =
     startIndex = utils.convertPointToIndex(range.start, editor)
     endIndex = utils.convertPointToIndex(range.end, editor)
 
-    if expandState.range is null
-      expandState.range = range
+    if expandState.prev is null or range.containsRange(expandState.prev.range) is false
+      expandState = {range: range, prev: null}
 
     res = paredit.navigator.sexpRangeExpansion(ast, startIndex, endIndex)
     if res and res.length == 2
@@ -32,10 +32,12 @@ module.exports =
       expandState = {range: newSelection, prev: expandState}
 
   contractSelection: ->
-    if expandState.prev isnt null
+    editor = atom.workspace.getActiveTextEditor()
+    range = editor.getSelectedBufferRange()
+
+    if expandState.prev and expandState.prev.range and range.containsRange(expandState.prev.range)
+      editor.setSelectedBufferRange(expandState.prev.range)
       expandState = expandState.prev
-      editor = atom.workspace.getActiveTextEditor()
-      editor.setSelectedBufferRange(expandState.range)
 
 navigate = (fn) ->
   editor = atom.workspace.getActiveTextEditor()
