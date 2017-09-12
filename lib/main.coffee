@@ -101,6 +101,7 @@ enableParedit = (subs, views) ->
     ["up-sexp",              nav.upSexp]
     ["down-sexp",            nav.downSexp]
     ["expand-selection",     nav.expandSelection]
+    ["contract-selection",   nav.contractSelection]
     ["indent",               edit.indent]
     ["newline",              edit.newline]
     ["wrap-around-parens",   edit.wrapAroundParens]

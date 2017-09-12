@@ -20,6 +20,7 @@
   'ctrl-up':            'lisp-paredit:up-sexp'
   'ctrl-down':          'lisp-paredit:down-sexp'
   'ctrl-w':             'lisp-paredit:expand-selection'
+  'ctrl-alt-space':     'lisp-paredit:contract-selection'
 
   'enter':              'lisp-paredit:newline'
 
