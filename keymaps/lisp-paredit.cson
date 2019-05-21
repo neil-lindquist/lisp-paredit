@@ -19,6 +19,10 @@
   'ctrl-left':          'lisp-paredit:backward-sexp'
   'ctrl-up':            'lisp-paredit:up-sexp'
   'ctrl-down':          'lisp-paredit:down-sexp'
+  'ctrl-shift-right':   'lisp-paredit:select-forward-sexp'
+  'ctrl-shift-left':    'lisp-paredit:select-backward-sexp'
+  'ctrl-shift-up':      'lisp-paredit:select-up-sexp'
+  'ctrl-shift-down':    'lisp-paredit:select-down-sexp'
   'ctrl-w':             'lisp-paredit:expand-selection'
   'ctrl-alt-space':     'lisp-paredit:contract-selection'
 
