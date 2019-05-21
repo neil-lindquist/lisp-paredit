@@ -35,8 +35,9 @@ module.exports =
 
   indent: ->
     editor = atom.workspace.getActiveTextEditor()
-    range = editor.getSelectedBufferRange()
-    indentRange(range, editor)
+    ranges = editor.getSelectedBufferRanges()
+    for range in ranges
+      indentRange(range, editor)
 
   deleteBackwards: ->
     edit(paredit.editor.delete, {backward: true})
@@ -62,8 +63,9 @@ module.exports =
     else
       editor.transact ->
         editor.pasteText()
-        range = editor.getSelectedBufferRange()
-        indentRange(range, editor)
+        ranges = editor.getSelectedBufferRanges()
+        for range in ranges
+          indentRange(range, editor)
 
   newline: ->
     editor = atom.workspace.getActiveTextEditor()
