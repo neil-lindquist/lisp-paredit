@@ -1,8 +1,8 @@
-'atom-text-editor[data-grammar~="clojure"],
- atom-text-editor[data-grammar~="lisp"],
- atom-text-editor[data-grammar~="newlisp"],
- atom-text-editor[data-grammar~="racket"],
- atom-text-editor[data-grammar~="scheme"]':
+'atom-workspace atom-text-editor[data-grammar~="clojure"],
+ atom-workspace atom-text-editor[data-grammar~="lisp"],
+ atom-workspace atom-text-editor[data-grammar~="newlisp"],
+ atom-workspace atom-text-editor[data-grammar~="racket"],
+ atom-workspace atom-text-editor[data-grammar~="scheme"]':
   'ctrl-alt-,':         'lisp-paredit:barf-forwards'
   'ctrl-alt-.':         'lisp-paredit:slurp-forwards'
   'ctrl-alt-<':         'lisp-paredit:slurp-backwards'
@@ -33,11 +33,11 @@
   'ctrl-alt-[':         'lisp-paredit:wrap-around-square'
   'ctrl-alt-{':         'lisp-paredit:wrap-around-curly'
 
-'atom-text-editor[data-grammar~="clojure"].lisp-paredit-strict,
- atom-text-editor[data-grammar~="lisp"].lisp-paredit-strict,
- atom-text-editor[data-grammar~="newlisp"].lisp-paredit-strict,
- atom-text-editor[data-grammar~="racket"].lisp-paredit-strict,
- atom-text-editor[data-grammar~="scheme"].lisp-paredit-strict':
+'atom-workspace atom-text-editor[data-grammar~="clojure"].lisp-paredit-strict,
+ atom-workspace atom-text-editor[data-grammar~="lisp"].lisp-paredit-strict,
+ atom-workspace atom-text-editor[data-grammar~="newlisp"].lisp-paredit-strict,
+ atom-workspace atom-text-editor[data-grammar~="racket"].lisp-paredit-strict,
+ atom-workspace atom-text-editor[data-grammar~="scheme"].lisp-paredit-strict':
   'backspace':          'lisp-paredit:delete-backwards'
   'ctrl-h':             'lisp-paredit:delete-backwards'
   'delete':             'lisp-paredit:delete-forwards'
