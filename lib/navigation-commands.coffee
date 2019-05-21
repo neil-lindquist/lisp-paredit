@@ -42,8 +42,15 @@ module.exports =
 navigate = (fn) ->
   editor = atom.workspace.getActiveTextEditor()
   ast = paredit.parse(editor.getText())
-  cursor = editor.getCursorBufferPosition()
-  index = utils.convertPointToIndex(cursor, editor)
-  result = fn(ast, index)
-  point = utils.convertIndexToPoint(result, editor)
-  editor.setCursorBufferPosition(point)
+  cursors = editor.getCursorBufferPositions()
+
+  newCursors =[]
+  for cursor in cursors
+    index = utils.convertPointToIndex(cursor, editor)
+    result = fn(ast, index)
+    newCursors.push(utils.convertIndexToPoint(result, editor))
+
+  editor.setCursorBufferPosition(newCursors[0])
+  if newCursors.length > 1
+    for i in [1..newCursors.length-1]
+      editor.addCursorAtBufferPosition(newCursors[i])
