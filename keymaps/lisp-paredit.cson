@@ -9,6 +9,7 @@
   'ctrl-alt->':         'lisp-paredit:barf-backwards'
 
   'cmd-delete':         'lisp-paredit:kill-sexp-forwards'
+  'alt-delete':         'lisp-paredit:kill-sexp-forwards'
 
   'cmd-backspace':      'lisp-paredit:kill-sexp-backwards'
   'alt-backspace':      'lisp-paredit:kill-sexp-backwards'
