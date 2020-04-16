@@ -1,4 +1,6 @@
-Copyright (c) 2015 Jon Spalding
+MIT License
+
+Copyright (c) 2015-2019 Jon Spalding, Neil Lindquist, and more (see AUTHORS.md)
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the

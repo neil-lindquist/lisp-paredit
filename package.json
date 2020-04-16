@@ -3,8 +3,12 @@
   "main": "./lib/main",
   "version": "0.6.0",
   "description": "Paredit for Atom",
-  "repository": "https://github.com/jonspalding/lisp-paredit",
+  "repository": "https://github.com/neil-lindquist/lisp-paredit",
   "license": "MIT",
+  "keywords": [
+    "lisp",
+    "paredit",
+  ],
   "engines": {
     "atom": ">=1.13.0"
   },
