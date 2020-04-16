@@ -1,5 +1,8 @@
 # Lisp Paredit for Atom
 
+[![Build Status](https://travis-ci.org/neil-lindquist/lisp-paredit.svg?branch=master)](https://travis-ci.org/neil-lindquist/lisp-paredit)
+[![Dependancy Status](https://img.shields.io/david/neil-lindquist/lisp-paredit.svg)](https://david-dm.org/neil-lindquist/lisp-paredit)
+
 Lisp Paredit provides [paredit](http://danmidwood.com/content/2014/11/21/animated-paredit.html) style
 functionality for the [Atom](http://atom.io) text editor. It also features basic
 syntax checking, syntax error highlighting and a strict mode.
