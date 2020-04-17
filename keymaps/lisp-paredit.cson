@@ -8,11 +8,11 @@
   'ctrl-alt-<':         'lisp-paredit:slurp-backwards'
   'ctrl-alt->':         'lisp-paredit:barf-backwards'
 
-  'cmd-delete':         'lisp-paredit:kill-forwards'
-  'alt-delete':         'lisp-paredit:kill-forwards'
+  'cmd-shift-delete':     'lisp-paredit:kill-forwards'
+  'alt-shift-delete':     'lisp-paredit:kill-forwards'
 
-  'cmd-backspace':      'lisp-paredit:kill-backwards'
-  'alt-backspace':      'lisp-paredit:kill-backwards'
+  'cmd-shift-backspace':  'lisp-paredit:kill-backwards'
+  'alt-shift-backspace':  'lisp-paredit:kill-backwards'
 
   'cmd-delete':         'lisp-paredit:kill-sexp-forwards'
   'alt-delete':         'lisp-paredit:kill-sexp-forwards'
