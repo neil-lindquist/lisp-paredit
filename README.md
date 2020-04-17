@@ -36,6 +36,10 @@ ctrl-alt->         | barf-backwards
 cmd-delete         | kill-sexp-forwards
 cmd-backspace      | kill-sexp-backwards
 alt-backspace      | kill-sexp-backwards
+cmd-shift-delete   | kill-forwards
+alt-shift-delete   | kill-forwards
+cmd-shift-backspace| kill-backwards
+alt-shift-backspace| kill-backwards
 ctrl-alt-i         | indent
 ctrl-right         | forward-sexp
 ctrl-left          | backward-sexp

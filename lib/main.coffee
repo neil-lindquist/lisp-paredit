@@ -90,6 +90,8 @@ enableParedit = (subs, views) ->
     ["slurp-forwards",       edit.slurpForwards]
     ["barf-backwards",       edit.barfBackwards]
     ["barf-forwards",        edit.barfForwards]
+    ["kill-forwards",        edit.killForward]
+    ["kill-backwards"]
     ["kill-sexp-forwards",   edit.killSexpForwards]
     ["kill-sexp-backwards",  edit.killSexpBackwards]
     ["splice",               edit.splice]

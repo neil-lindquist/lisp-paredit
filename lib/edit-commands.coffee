@@ -15,6 +15,14 @@ module.exports =
   barfForwards: ->
     edit(paredit.editor.barfSexp, backward: false)
 
+  killForward: ->
+    console.log("killing forward")
+    edit(paredit.editor.killSexp, backwards: false, count: Infinity)
+
+  killBackwards: ->
+    console.log("killing forward")
+    edit(paredit.editor.killSexp, backwards: true, count: Infinity)
+
   killSexpForwards: ->
     edit(paredit.editor.killSexp, backward: false)
 
@@ -195,7 +203,7 @@ edit = (fn, args = {}) ->
 
         src = editor.getText()
         ast = paredit.parse(src)
-        args.count = 1
+        args.count ?= 1
 
         if args.backward and point.column == 0
           args.count = utils.lineEndingForRow(point.row - 1, editor).length
