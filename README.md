@@ -34,6 +34,7 @@ ctrl-alt-.         | slurp-forwards
 ctrl-alt-<         | slurp-backwards
 ctrl-alt->         | barf-backwards
 cmd-delete         | kill-sexp-forwards
+alt-delete         | kill-sexp-forwards
 cmd-backspace      | kill-sexp-backwards
 alt-backspace      | kill-sexp-backwards
 cmd-shift-delete   | kill-forwards
@@ -42,9 +43,13 @@ cmd-shift-backspace| kill-backwards
 alt-shift-backspace| kill-backwards
 ctrl-alt-i         | indent
 ctrl-right         | forward-sexp
+ctrl-shift-right   | select-forward-sexp
 ctrl-left          | backward-sexp
+ctrl-shift-left    | select-backward-sexp
 ctrl-up            | up-sexp
+ctrl-shift-up      | select-up-sexp
 ctrl-down          | down-sexp
+ctrl-shift-down    | select-down-sexp
 ctrl-w             | expand-selection
 ctrl-alt-space     | contract-selection
 ctrl-alt-up        | splice-backwards
