@@ -14,9 +14,9 @@ module.exports =
       ["paste",                edit.paste]
     ], strictSubs, views
 
-    strictSubs.add atom.workspace.observeTextEditors (editor) =>
-                     if utils.isSupportedGrammar(editor.getGrammar())
-                       enableEditorStrictMode(strictSubs, editor, views)
+    strictSubs.add atom.workspace.observeTextEditors (editor) ->
+      if utils.isSupportedGrammar(editor.getGrammar())
+        enableEditorStrictMode(strictSubs, editor, views)
 
   disableStrictMode: (strictSubs, views) ->
     views.strictModeEnabled(false)

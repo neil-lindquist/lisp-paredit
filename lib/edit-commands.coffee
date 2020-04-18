@@ -129,7 +129,7 @@ applyChanges = (result, editor) ->
       indexes = result.newIndexes or []
       indexes.push result.newIndex if result.newIndex
 
-      first = indexes.slice(0,1)
+      first = indexes.slice(0, 1)
       rest = indexes.slice(1)
 
       point = utils.convertIndexToPoint(first, editor)
@@ -175,7 +175,7 @@ edit = (fn, args = {}) ->
   selections = editor.getSelections().filter (s) -> !s.isEmpty()
   newIndexes = []
 
-  editor.transact =>
+  editor.transact ->
     if selections.length > 0
       for selection in selections
         src = editor.getText()

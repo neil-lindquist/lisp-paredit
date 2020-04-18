@@ -27,7 +27,7 @@ module.exports =
     editor.getTextInBufferRange(range).length
 
   convertIndexToPoint: (index, editor) ->
-    p = @indexToPoint(index, editor.getText())
+    p = module.exports.indexToPoint(index, editor.getText())
     new Point(p.row, p.column)
 
   addCommands: (commands, subs, views) ->
@@ -37,7 +37,7 @@ module.exports =
     editor?.buffer?.getPreferredLineEnding() or getDefaultLineEnding()
 
   lineEndingForRow: (row, editor) ->
-    editor.buffer.lineEndingForRow(row) or @lineEnding(editor)
+    editor.buffer.lineEndingForRow(row) or module.exports.lineEnding(editor)
 
 getDefaultLineEnding = ->
   switch atom.config.get('line-ending-selector.defaultLineEnding')

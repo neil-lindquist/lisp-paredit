@@ -300,7 +300,9 @@ parseText = (text) ->
     if selectionStart >= 0 and selectionEnd >= 0
       text = text.replace(/</, "").replace(/>/, "")
       selectedText = text.substring(selectionStart, selectionEnd)
-      selections.push [utils.indexToPoint(selectionStart, text), utils.indexToPoint(selectionEnd, text), selectedText]
+      selections.push [utils.indexToPoint(selectionStart, text),
+                       utils.indexToPoint(selectionEnd, text),
+                       selectedText]
 
   return [text, [], selections] if selections.length > 0
 

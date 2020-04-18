@@ -28,7 +28,7 @@ module.exports = LispParedit =
       default: ["&", "monitor-exit", "/^case/", "try", "/^reify/", "finally", "/^(.*-)?loop/",
         "/^let/", "/^import/", "new", "/^deftype/", "/^let/", "fn", "recur", "/^set.*!$/",
         ".", "var", "quote", "catch", "throw", "monitor-enter",
-        'ns', 'in-ns', "/^([^\/]+\/)?def/","/^if/","/^when/","/^unless/", "while", "for",
+        'ns', 'in-ns', "/^([^\/]+\/)?def/", "/^if/", "/^when/", "/^unless/", "while", "for",
         "/(^|\/)with/", "testing", "while", "cond", "condp", "apply",
         "binding", "locking", "proxy", "reify", "/^extend/", "facts",
         "do", "doseq", "dorun", "doall", "dosync", "start", "stop"]
@@ -39,7 +39,7 @@ module.exports = LispParedit =
 
 
 
-  activate: (state) ->
+  activate: (state) =>
     configureParedit()
 
     @views = new Views(toggle, toggleStrict)
@@ -65,16 +65,16 @@ module.exports = LispParedit =
       else
         strict.disableStrictMode(@strictSubscriptions, @views)
 
-    @persistentSubscriptions.add atom.config.onDidChange 'lisp-paredit.indentationForms', (event) =>
+    @persistentSubscriptions.add atom.config.onDidChange 'lisp-paredit.indentationForms', (event) ->
       configureParedit()
 
-  deactivate: ->
+  deactivate: =>
     @persistentSubscriptions.dispose() if @persistentSubscriptions
     @subscriptions.dispose() if @subscriptions
     @strictSubscriptions.dispose() if @strictSubscriptions
     @views.detach()
 
-  consumeStatusBar: (statusBar) ->
+  consumeStatusBar: (statusBar) =>
     @views.setStatusBar(statusBar)
     @views.enabled(atom.config.get('lisp-paredit.enabled'))
     @views.strictModeEnabled(atom.config.get('lisp-paredit.strict'))
@@ -116,13 +116,13 @@ enableParedit = (subs, views) ->
     ["toggle-strict",        toggleStrict, 'atom-workspace']
   ], subs, views
 
-  subs.add atom.workspace.observeTextEditors (editor) =>
-             if utils.isSupportedGrammar(editor.getGrammar())
-               observeEditor(editor, subs, views)
-             else
-               editor.onDidChangeGrammar (grammar) =>
-                 if utils.isSupportedGrammar(grammar)
-                   observeEditor(editor, subs, views)
+  subs.add atom.workspace.observeTextEditors (editor) ->
+    if utils.isSupportedGrammar(editor.getGrammar())
+      observeEditor(editor, subs, views)
+    else
+      editor.onDidChangeGrammar (grammar) ->
+        if utils.isSupportedGrammar(grammar)
+          observeEditor(editor, subs, views)
 
 observeEditor = (editor, subs, views) ->
   checkSyntax(editor, views)
