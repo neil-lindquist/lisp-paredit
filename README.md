@@ -24,7 +24,9 @@ Search package installer for `lisp paredit` or use the command line:
 ## Options
 Lisp Paredit can operate in strict or non-strict modes, via the setting in preferences.
 
-You can also disable Lisp Paredit at any time which will unbind the keymap.
+Additionally, indentation can be controlled by the *Indentation Forms* settings, which contains a list of forms (either as strings or as regex's) that should be indented as macros.
+
+Finally, the package can be disabled, or just it's keybindings, from it's settings package.
 
 ## Paredit Commands
 Default keybinding | Action
