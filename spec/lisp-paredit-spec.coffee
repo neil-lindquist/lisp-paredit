@@ -23,6 +23,10 @@ describe "LispParedit", ->
 
   describe "when commands are triggered", ->
     testCommand = (command, text, expected) ->
+      lineEnding = utils.lineEnding()
+      text = text.replace /\n/g, lineEnding
+      expected = expected.replace /\n/g, lineEnding
+
       it "should #{command}", ->
         [text, cursors, selections] = parseText(text)
         [expectedText, expectedCursors, expectedSelections] = parseText(expected)
@@ -54,8 +58,19 @@ describe "LispParedit", ->
 
     testCommand "forward-sexp",         "|(a b) (c d)",         "(a b)| (c d)"
     testCommand "forward-sexp",         "|(a\n b) (c d)",       "(a\n b)| (c d)"
+    testCommand "forward-sexp",         "|(a b) (|c d)",         "(a b)| (c| d)"
     testCommand "backward-sexp",        "(a b)| (c d)",         "|(a b) (c d)"
     testCommand "backward-sexp",        "(a\n b)| (c d)",       "|(a\n b) (c d)"
+    testCommand "backward-sexp",        "(a b)| (c| d)",         "|(a b) (|c d)"
+
+    testCommand "select-forward-sexp",  "|(a b) (c d)",         "<(a b)> (c d)"
+    testCommand "select-forward-sexp",  "|(a\n b) (c d)",       "<(a\n b)> (c d)"
+    testCommand "select-forward-sexp",  "(a |(b c) d)",         "(a <(b c)> d)"
+    testCommand "select-forward-sexp",  "|(a b) (|c d)",         "<(a b)> (<c> d)"
+    testCommand "select-backward-sexp", "(a b)| (c d)",         "<(a b)> (c d)"
+    testCommand "select-backward-sexp", "(a\n b)| (c d)",       "<(a\n b)> (c d)"
+    testCommand "select-backward-sexp", "(a (b c)| d)",         "(a <(b c)> d)"
+    testCommand "select-backward-sexp", "(a b)| (c| d)",         "<(a b)> (<c> d)"
 
     testCommand "slurp-backwards",      "(a (|b) c)",           "((a |b) c)"
     testCommand "slurp-backwards",      "(a (|b) c (|d))",      "((a |b) (c |d))"
@@ -72,8 +87,13 @@ describe "LispParedit", ->
     testCommand "barf-forwards",        "((|a b) c)",           "((|a) b c)"
     testCommand "barf-forwards",        "|((a b) c)",           "|((a b) c)"
 
+    testCommand "kill-forwards",        "((a| b c) d)",         "((a|) d)"
+    testCommand "kill-backwards",       "((a b |c) d)",         "((|c) d)"
+
     testCommand "kill-sexp-forwards",   "((a| b) c)",           "((a|) c)"
+    testCommand "kill-sexp-forwards",   "((a| b c) d)",         "((a| c) d)"
     testCommand "kill-sexp-backwards",  "((a |b) c)",           "((|b) c)"
+    testCommand "kill-sexp-backwards",  "((a b |c) d)",         "((a |c) d)"
 
     testCommand "up-sexp",              "((a| b) c)",           "(|(a b) c)"
     testCommand "down-sexp",            "(|(a b) c)",           "((|a b) c)"

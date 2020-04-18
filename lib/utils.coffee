@@ -34,7 +34,7 @@ module.exports =
     addCommand(command, subs, views) for command in commands
 
   lineEnding: (editor) ->
-    editor.buffer.getPreferredLineEnding() or getDefaultLineEnding()
+    editor?.buffer?.getPreferredLineEnding() or getDefaultLineEnding()
 
   lineEndingForRow: (row, editor) ->
     editor.buffer.lineEndingForRow(row) or @lineEnding(editor)
