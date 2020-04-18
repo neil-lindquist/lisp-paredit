@@ -15,13 +15,11 @@ module.exports =
   barfForwards: ->
     edit(paredit.editor.barfSexp, backward: false)
 
-  killForward: ->
-    console.log("killing forward")
-    edit(paredit.editor.killSexp, backwards: false, count: Infinity)
+  killForwards: ->
+    edit(paredit.editor.killSexp, backward: false, count: Infinity)
 
   killBackwards: ->
-    console.log("killing forward")
-    edit(paredit.editor.killSexp, backwards: true, count: Infinity)
+    edit(paredit.editor.killSexp, backward: true, count: Infinity)
 
   killSexpForwards: ->
     edit(paredit.editor.killSexp, backward: false)
