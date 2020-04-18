@@ -1,3 +1,18 @@
+## 0.7.0
+* Add kill to end of sexp commands
+* Add keymap for kill-sexp-forward to match kill-sexp-backward
+* Add selecting variants of sexp navigation commands
+* Update dependencies
+* Improve support for multiple cursors
+* Fix commands not having high enough precedence
+* Improve software development tooling and information
+  * Add Travis CI tests
+  * Add linter
+  * Add package-lock.json
+  * Update package information
+  * Improve some tests
+
+
 ## 0.4.4
 * Update paredit.js to 0.2.11
 
