@@ -1,7 +1,5 @@
 {Range, Point} = require 'atom'
 
-grammars = ["Clojure", "Lisp", "Scheme", "Newlisp"]
-
 module.exports =
   indexToPoint: (index, src) ->
     substr = src.substring(0, index)
@@ -13,7 +11,7 @@ module.exports =
     {row: row, column: column}
 
   isSupportedGrammar: (grammar) ->
-    grammars.some (g) -> g == grammar.name
+    atom.config.get('lisp-paredit.grammars').some (g) -> g == grammar.name
 
   addClass: (view, clazz) ->
     view.className = view.className + " " + clazz

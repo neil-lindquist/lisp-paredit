@@ -36,6 +36,13 @@ module.exports = LispParedit =
       order: 3
       items:
         type: 'string'
+    grammars:
+      type: 'array'
+      default: ["Clojure", "Lisp", "Scheme", "Newlisp", "Racket"]
+      description: 'A list of grammars to be edited as lisps'
+      order: 4
+      items:
+          type: 'string'
 
 
 
@@ -116,13 +123,27 @@ enableParedit = (subs, views) ->
     ["toggle-strict",        toggleStrict, 'atom-workspace']
   ], subs, views
 
+  subs.add atom.config.onDidChange 'lisp-paredit.grammars', (event) ->
+    for editor in atom.workspace.getTextEditors()
+      updateGrammar(editor)
+
   subs.add atom.workspace.observeTextEditors (editor) ->
+    updateGrammar(editor)
     if utils.isSupportedGrammar(editor.getGrammar())
       observeEditor(editor, subs, views)
     else
       editor.onDidChangeGrammar (grammar) ->
+        updateGrammar(editor)
         if utils.isSupportedGrammar(grammar)
           observeEditor(editor, subs, views)
+
+
+updateGrammar = (editor) ->
+  view = atom.views.getView(editor)
+  if utils.isSupportedGrammar(editor.getGrammar())
+    utils.addClass(view, "lisp-paredit-grammar")
+  else
+    utils.removeClass(view, "lisp-paredit-grammar")
 
 observeEditor = (editor, subs, views) ->
   checkSyntax(editor, views)
