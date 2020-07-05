@@ -25,6 +25,15 @@ module.exports =
       view = atom.views.getView(editor)
       utils.removeClass(view, "lisp-paredit-strict")
 
+not_in_string = (editor, point) ->
+  index = utils.convertPointToIndex(point, editor)
+  text = editor.getText()
+  ast = paredit.parse(text)
+
+  filter = ((e) -> e.type == 'string' && e.start < index && e.end > index)
+
+  return paredit.walk.sexpsAt(ast, index, filter).length == 0
+
 enableEditorStrictMode = (strictSubs, editor, views) ->
   view = atom.views.getView(editor)
   utils.addClass(view, "lisp-paredit-strict")
@@ -36,15 +45,17 @@ enableEditorStrictMode = (strictSubs, editor, views) ->
           event.cancel()
           editor.insertText "#{brace}#{closingBraces[i]}"
           editor.moveLeft()
+
       closeBrace = closingBraces.some (ch) -> ch == event.text
       if closeBrace
         p = editor.getCursorBufferPosition()
         nextCharacter = editor.getTextInBufferRange [[p.row, p.column], [p.row, p.column + 1]]
         if nextCharacter == event.text
           editor.moveRight()
-        else
+          event.cancel()
+        else if not_in_string(editor, p)
           views.invalidInput()
-        event.cancel()
+          event.cancel()
     else
       stack = []
       for c in event.text
