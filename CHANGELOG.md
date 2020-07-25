@@ -1,3 +1,7 @@
+## 0.8.0
+* Add a setting for which grammars to enable paredit for
+* Fix strict mode preventing `)` in strings
+
 ## 0.7.0
 * Add kill to end of sexp commands
 * Add keymap for kill-sexp-forward to match kill-sexp-backward
