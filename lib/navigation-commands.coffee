@@ -36,7 +36,8 @@ module.exports =
     res = paredit.navigator.sexpRangeExpansion(ast, startIndex, endIndex)
     if res and res.length == 2
       [start, end] = res
-      newSelection = new Range(utils.convertIndexToPoint(start, editor), utils.convertIndexToPoint(end, editor))
+      newSelection = new Range(utils.convertIndexToPoint(start, editor),
+                               utils.convertIndexToPoint(end, editor))
       editor.setSelectedBufferRange(newSelection)
       expandState = {range: newSelection, prev: expandState}
 

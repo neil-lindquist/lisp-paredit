@@ -42,7 +42,7 @@ module.exports = LispParedit =
       description: 'A list of grammars to be edited as lisps'
       order: 4
       items:
-          type: 'string'
+        type: 'string'
 
 
 
