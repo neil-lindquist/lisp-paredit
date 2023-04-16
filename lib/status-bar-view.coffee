@@ -1,17 +1,35 @@
-{View} = require 'atom-space-pen-views'
+etch = require 'etch'
+$ = etch.dom
 
 module.exports =
-class StatusBarView extends View
-  @content: ->
-    @div class: 'lisp-paredit-status inline-block', =>
-      @span class: 'enabled-status', click: 'toggle', '(λ)'
-      @span class: 'strict-status', click: 'toggleStrict', ' strict'
-
-  initialize: (@statusBar, @toggleCallback, @toggleStrictCallback) ->
+class StatusBarView
+  constructor: (@statusBar, @toggleCallback, @toggleStrictCallback) ->
+    @enabled = false
+    @strict = false
+    @error = false
+    etch.initialize @
     @attach()
 
+  update: (props, children) ->
+    return etch.update @
+
+  render: () ->
+    div_classes = 'lisp-paredit-status inline-block'
+    if @enabled
+      div_classes += ' enabled'
+    if @strict
+      div_classes += ' strict'
+    if @error
+      div_classes += ' error'
+
+    $.div {className:div_classes, style:'max-width:100vw'},
+      $.span {className: 'enabled-status', on:{click:@toggle}},
+        '(λ)'
+      $.span {className: 'strict-status', on:{click:@toggleStrict}},
+        ' strict'
+
   attach: ->
-    @tile = @statusBar.addRightTile(item: this, priority: 10)
+    @tile = @statusBar.addRightTile(item: @element, priority: 10)
 
   detach: ->
     @tile.destroy() if @tile
@@ -22,16 +40,22 @@ class StatusBarView extends View
     @toggleStrictCallback()
 
   enable: ->
-    @addClass("enabled")
+    @enabled = true
+    etch.update @
   disable: ->
-    @removeClass("enabled")
+    @enabled = false
+    etch.update @
   enableStrict: ->
-    @addClass("strict")
+    @strict = true
+    etch.update @
   disableStrict: ->
-    @removeClass("strict")
+    @strict = false
+    etch.update @
 
   invalidInput: ->
-    @addClass("error")
+    @error = true
+    etch.update @
     setTimeout =>
-      @removeClass("error")
+      @error = false
+      etch.update @
     , 300
