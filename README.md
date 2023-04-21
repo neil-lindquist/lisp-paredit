@@ -1,10 +1,7 @@
 # Lisp Paredit for Atom
 
-[![Build Status](https://travis-ci.org/neil-lindquist/lisp-paredit.svg?branch=master)](https://travis-ci.org/neil-lindquist/lisp-paredit)
-[![Dependancy Status](https://img.shields.io/david/neil-lindquist/lisp-paredit.svg)](https://david-dm.org/neil-lindquist/lisp-paredit)
-
 Lisp Paredit provides [paredit](http://danmidwood.com/content/2014/11/21/animated-paredit.html) style
-functionality for the [Atom](http://atom.io) text editor. It also features basic
+functionality for the [Pulsar](http://pulsar-edit.dev) text editor. It also features basic
 syntax checking, syntax error highlighting and a strict mode.
 Lisp Paredit only works for lisps and won't have any effect for other syntaxes. It is
 based on the excellent [paredit.js](http://robert.kra.hn/projects/paredit-js) library.
@@ -17,9 +14,9 @@ based on the excellent [paredit.js](http://robert.kra.hn/projects/paredit-js) li
  - Syntax checking and error highlighting
 
 ## Installing
-Search package installer for `lisp paredit` or use the command line:
+Search the package installer for `lisp paredit` or use the command line:
 
-`apm install lisp-paredit`
+`pulsar -p install lisp-paredit`
 
 ## Options
 Lisp Paredit can operate in strict or non-strict modes, via the setting in preferences.
