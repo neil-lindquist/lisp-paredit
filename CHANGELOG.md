@@ -1,3 +1,6 @@
+## 0.8.1
+* Replace space-pens with etch
+
 ## 0.8.0
 * Add a setting for which grammars to enable paredit for
 * Fix strict mode preventing `)` in strings
