@@ -1,5 +1,6 @@
 utils = require "./utils"
 {Range} = require 'atom'
+StatusBarView = require "./status-bar-view"
 
 module.exports =
 class Views
@@ -7,7 +8,6 @@ class Views
     @syntaxMarkers = {}
 
   setStatusBar: (statusBar) ->
-    StatusBarView = require "./status-bar-view"
     @statusBarView = new StatusBarView(statusBar, @toggleCallback, @toggleStrictCallback)
 
   showErrors: (editor, errors) ->
@@ -26,11 +26,11 @@ class Views
 
   enabled: (isEnabled) ->
     if @statusBarView
-      if isEnabled then @statusBarView.enable() else @statusBarView.disable()
+      @statusBarView.enable(isEnabled)
 
   strictModeEnabled: (isEnabled) ->
     if @statusBarView
-      if isEnabled then @statusBarView.enableStrict() else @statusBarView.disableStrict()
+      @statusBarView.enableStrict(isEnabled)
 
   detach: ->
     @statusBarView.detach() if @statusBarView

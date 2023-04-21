@@ -7,8 +7,9 @@ class StatusBarView
     @enabled = false
     @strict = false
     @error = false
+
     etch.initialize @
-    @attach()
+    @tile = @statusBar.addRightTile(item: @element, priority: 10)
 
   update: (props, children) ->
     return etch.update @
@@ -23,33 +24,19 @@ class StatusBarView
       div_classes += ' error'
 
     $.div {className:div_classes, style:'max-width:100vw'},
-      $.span {className: 'enabled-status', on:{click:@toggle}},
+      $.span {className: 'enabled-status', on:{click:@toggleCallback}},
         '(λ)'
-      $.span {className: 'strict-status', on:{click:@toggleStrict}},
+      $.span {className: 'strict-status', on:{click:@toggleStrictCallback}},
         ' strict'
-
-  attach: ->
-    @tile = @statusBar.addRightTile(item: @element, priority: 10)
 
   detach: ->
     @tile.destroy() if @tile
 
-  toggle: ->
-    @toggleCallback()
-  toggleStrict: ->
-    @toggleStrictCallback()
-
-  enable: ->
-    @enabled = true
+  enable: (enabled) ->
+    @enabled = enabled
     etch.update @
-  disable: ->
-    @enabled = false
-    etch.update @
-  enableStrict: ->
-    @strict = true
-    etch.update @
-  disableStrict: ->
-    @strict = false
+  enableStrict: (enabled) ->
+    @strict = enabled
     etch.update @
 
   invalidInput: ->
